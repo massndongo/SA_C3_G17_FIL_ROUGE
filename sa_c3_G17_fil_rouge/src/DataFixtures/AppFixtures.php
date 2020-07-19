@@ -19,6 +19,55 @@ class AppFixtures extends Fixture
 
         $role =new Role();
         $role->setLibelle('ROLE_CM');
+
+        /*for ($a=0; $a<10; $a++)
+        {
+            $admin = new Admin();
+            $admin->setPrenom($faker->firstName())
+                ->setNom($faker->lastName())
+                ->setPassword('admin')
+                ->setEmail($faker->email)
+                ->setLogin('admin')
+                ->setIsDeleted(false);
+
+            $role->addUser($admin);
+
+
+            $manager->persist($admin);
+        }*/
+
+        /*for ($f=0; $f<10; $f++)
+        {
+            $formateur = new Formateur();
+            $formateur->setPrenom($faker->firstName())
+                ->setNom($faker->lastName())
+                ->setPassword('admin')
+                ->setEmail($faker->email)
+                ->setLogin('admin')
+                ->setIsDeleted(false);
+
+            $role->addUser($formateur);
+
+
+            $manager->persist($formateur);
+        }*/
+
+        /*for ($f=0; $f<50; $f++)
+        {
+            $apprenant = new Apprenant();
+            $apprenant->setPrenom($faker->firstName())
+                ->setNom($faker->lastName())
+                ->setPassword('apprenant')
+                ->setEmail($faker->email)
+                ->setLogin('apprenant')
+                ->setIsDeleted(false);
+
+            $role->addUser($apprenant);
+
+
+            $manager->persist($apprenant);
+        }*/
+
         for ($f=0; $f<5; $f++)
         {
             $cm = new CM();
