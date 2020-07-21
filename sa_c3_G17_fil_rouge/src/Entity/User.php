@@ -2,16 +2,22 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
- * @ApiResource(attributes={"pagination_items_per_page"=5})
+ * @ApiResource(
+ *     attributes={"pagination_items_per_page"=5},
+ *     routePrefix="/admin"
+ *     )
  */
 class User implements UserInterface
 {
@@ -39,15 +45,17 @@ class User implements UserInterface
     private $password;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $avatar;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=Profil::class, inversedBy="users")
+     * @ORM\ManyToOne(targetEntity=Profil::class, inversedBy="user")
      * @ORM\JoinColumn(nullable=false)
+     * @ApiSubresource
      */
     private $profil;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     *
+     */
+    private $avatar;
 
     public function getId(): ?int
     {
@@ -100,7 +108,7 @@ class User implements UserInterface
 
     public function setPassword(string $password): self
     {
-        $this->password = $password;
+        $this->password =  $password; //$encoder->encodePassword($this,$password);
 
         return $this;
     }
@@ -122,18 +130,6 @@ class User implements UserInterface
         // $this->plainPassword = null;
     }
 
-    public function getAvatar(): ?string
-    {
-        return $this->avatar;
-    }
-
-    public function setAvatar(?string $avatar): self
-    {
-        $this->avatar = $avatar;
-
-        return $this;
-    }
-
     public function getProfil(): ?Profil
     {
         return $this->profil;
@@ -142,6 +138,18 @@ class User implements UserInterface
     public function setProfil(?Profil $profil): self
     {
         $this->profil = $profil;
+
+        return $this;
+    }
+
+    public function getAvatar()
+    {
+        return $this->avatar;
+    }
+
+    public function setAvatar(File $avatar): self
+    {
+        $this->avatar = $avatar;
 
         return $this;
     }

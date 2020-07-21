@@ -6,12 +6,20 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ProfilRepository;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ApiResource(attributes={"pagination_items_per_page"=2})
+ * @ApiResource(
+ *     routePrefix="/admin",
+ *     attributes={
+ *          "pagination_items_per_page"=2,
+ *          "security"="is_granted('ROLE_ADMIN')"
+ *          },
+ *
+ *     )
  * @ORM\Entity(repositoryClass=ProfilRepository::class)
  */
 class Profil
@@ -31,6 +39,7 @@ class Profil
 
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="profil")
+     * @ApiSubresource
      */
     private $users;
 
