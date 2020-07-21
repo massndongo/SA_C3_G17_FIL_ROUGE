@@ -24,20 +24,33 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager)
     {
-       // $faker = Factory::create('fr_FR');
-
-        $role =new Profil();
-        $role->setLibelle('ADMIN');
-        $user = new User();
-        $hash = $this->encoder->encodePassword($user, "admin");
-        $user->setUsername('admin')
-           ->setPassword($hash)
-           ->setProfil($role);
-
-
-
-        $manager->persist($role);
-        $manager->persist($user);
+       $faker = Factory::create('fr_FR');
+        $profils = [
+            "ADMIN",
+            "APPRENANT",
+            "FORMATEUR",
+            "CM"
+        ];
+        $size = \count($profils);
+        $roles = [];
+        for ($i=0; $i < $size; $i++) { 
+            $profil = new Profil();
+            $profil->setLibelle($profils[$i]);
+            $manager->persist($profil);
+            $roles[] = $profil;
+        }
+        for ($i=0 ; $i < 10 ; $i++ ) { 
+            # code...
+            $user = new User();
+            $hash = $this->encoder->encodePassword($user, "admin");
+            $profil = $roles[rand(0,$size-1)];
+            $user->setUsername($faker->firstName)
+               ->setPassword($hash)
+               ->setProfil($profil);
+            $profil->addUser($user);
+            $manager->persist($user);
+        }
+        // $manager->persist($role);
         $manager->flush();
     }
 }
