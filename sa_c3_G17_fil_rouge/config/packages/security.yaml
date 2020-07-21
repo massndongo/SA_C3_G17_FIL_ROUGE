@@ -34,7 +34,7 @@ security:
             provider: app_user_provider
             json_login:
                 check_path: /login
-                username_path: email
+                username_path: username
                 password_path: password
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
@@ -52,3 +52,4 @@ security:
         # - { path: ^/profile, roles: ROLE_USER }
         - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/, roles: IS_AUTHENTICATED_FULLY }
+  #      - { path: ^/api/profils, roles: IS_AUTHENTICATED_FULLY , methods: [GET, PUT, PATCH, DELETE] }
