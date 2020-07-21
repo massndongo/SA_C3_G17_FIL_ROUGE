@@ -3,16 +3,16 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\RoleRepository;
+use App\Repository\ProfilRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=RoleRepository::class)
  * @ApiResource()
+ * @ORM\Entity(repositoryClass=ProfilRepository::class)
  */
-class Role
+class Profil
 {
     /**
      * @ORM\Id()
@@ -27,13 +27,13 @@ class Role
     private $libelle;
 
     /**
-     * @ORM\OneToMany(targetEntity=User::class, mappedBy="role")
+     * @ORM\OneToMany(targetEntity=User::class, mappedBy="profil")
      */
-    private $user;
+    private $users;
 
     public function __construct()
     {
-        $this->user = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -56,16 +56,16 @@ class Role
     /**
      * @return Collection|User[]
      */
-    public function getUser(): Collection
+    public function getUsers(): Collection
     {
-        return $this->user;
+        return $this->users;
     }
 
     public function addUser(User $user): self
     {
-        if (!$this->user->contains($user)) {
-            $this->user[] = $user;
-            $user->setRole($this);
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+            $user->setProfil($this);
         }
 
         return $this;
@@ -73,11 +73,11 @@ class Role
 
     public function removeUser(User $user): self
     {
-        if ($this->user->contains($user)) {
-            $this->user->removeElement($user);
+        if ($this->users->contains($user)) {
+            $this->users->removeElement($user);
             // set the owning side to null (unless already changed)
-            if ($user->getRole() === $this) {
-                $user->setRole(null);
+            if ($user->getProfil() === $this) {
+                $user->setProfil(null);
             }
         }
 

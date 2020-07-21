@@ -6,85 +6,38 @@ use App\Entity\Admin;
 use App\Entity\Apprenant;
 use App\Entity\CM;
 use App\Entity\Formateur;
+use App\Entity\Profil;
 use App\Entity\Role;
+use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Factory;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class AppFixtures extends Fixture
 {
+    private $encoder;
+    public function __construct(UserPasswordEncoderInterface $encoder)
+    {
+        $this->encoder = $encoder;
+    }
+
     public function load(ObjectManager $manager)
     {
-        $faker = Factory::create('fr_FR');
+       // $faker = Factory::create('fr_FR');
 
-        $role =new Role();
-        $role->setLibelle('ROLE_CM');
-
-        /*for ($a=0; $a<10; $a++)
-        {
-            $admin = new Admin();
-            $admin->setPrenom($faker->firstName())
-                ->setNom($faker->lastName())
-                ->setPassword('admin')
-                ->setEmail($faker->email)
-                ->setLogin('admin')
-                ->setIsDeleted(false);
-
-            $role->addUser($admin);
+        $role =new Profil();
+        $role->setLibelle('ADMIN');
+        $user = new User();
+        $hash = $this->encoder->encodePassword($user, "admin");
+        $user->setUsername('admin')
+           ->setPassword($hash)
+           ->setProfil($role);
 
 
-            $manager->persist($admin);
-        }*/
-
-        /*for ($f=0; $f<10; $f++)
-        {
-            $formateur = new Formateur();
-            $formateur->setPrenom($faker->firstName())
-                ->setNom($faker->lastName())
-                ->setPassword('admin')
-                ->setEmail($faker->email)
-                ->setLogin('admin')
-                ->setIsDeleted(false);
-
-            $role->addUser($formateur);
-
-
-            $manager->persist($formateur);
-        }*/
-
-        /*for ($f=0; $f<50; $f++)
-        {
-            $apprenant = new Apprenant();
-            $apprenant->setPrenom($faker->firstName())
-                ->setNom($faker->lastName())
-                ->setPassword('apprenant')
-                ->setEmail($faker->email)
-                ->setLogin('apprenant')
-                ->setIsDeleted(false);
-
-            $role->addUser($apprenant);
-
-
-            $manager->persist($apprenant);
-        }*/
-
-        for ($f=0; $f<5; $f++)
-        {
-            $cm = new CM();
-            $cm->setPrenom($faker->firstName())
-                ->setNom($faker->lastName())
-                ->setPassword('cm')
-                ->setEmail($faker->email)
-                ->setLogin('cm')
-                ->setIsDeleted(false);
-
-            $role->addUser($cm);
-
-
-            $manager->persist($cm);
-        }
 
         $manager->persist($role);
+        $manager->persist($user);
         $manager->flush();
     }
 }
