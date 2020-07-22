@@ -13,7 +13,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
- *     routePrefix="/admin",
+ *     collectionOperations={
+ *          "get_users"={
+ *              "method"="GET",
+ *              "path"="/admin/profils",
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource"
+ *          },
+ *     },
  *     attributes={
  *          "pagination_items_per_page"=2,
  *          "security"="is_granted('ROLE_ADMIN')"
