@@ -49,7 +49,6 @@ class AppFixtures extends Fixture
             $profil->addUser($user);
             $manager->persist($user);
         }
-
         // $manager->persist($role);
         $manager->flush();
     }
