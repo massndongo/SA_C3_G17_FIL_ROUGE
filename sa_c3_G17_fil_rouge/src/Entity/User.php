@@ -6,7 +6,6 @@ use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -17,6 +16,12 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ApiResource(
  *     attributes={"pagination_items_per_page"=5},
  *     collectionOperations={
+ *          "add_user"={
+ *              "method"="POST",
+ *              "path"="/admin/users",
+ *              "security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_CM')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource"
+ *          },
  *          "get_users"={
  *              "method"="GET",
  *              "path"="/admin/users",
@@ -26,8 +31,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *          "get_students"={
  *              "method"="GET",
  *              "path"="/apprenants",
- *              "security"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR')) or is_granted('ROLE_CM'))",
- *              "security_message"="Vous n'avez pas access à cette Ressource"
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *
  *          },
  *          "add_user"={
  *              "method"="POST",
@@ -54,7 +59,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *              "method"="GET",
  *              "path"="/apprenants/{id}",
  *              "requirements"={"id"="\d+"},
- *              "security"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR')) or is_granted('ROLE_CM') or is_granted('ROLE_APPRENANT))",
+ *              "security"="(is_granted('ROLE_ADMIN'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource"
  *          },
  *          "get_formateur"={
@@ -107,6 +112,7 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank(message="Le username est obligatoire")
+     *
      */
     private $username;
 
@@ -128,7 +134,7 @@ class User implements UserInterface
     private $profil;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="blob", nullable=true)
      *
      */
     private $avatar;
@@ -223,7 +229,7 @@ class User implements UserInterface
         return $this->avatar;
     }
 
-    public function setAvatar(File $avatar): self
+    public function setAvatar($avatar): self
     {
         $this->avatar = $avatar;
 
