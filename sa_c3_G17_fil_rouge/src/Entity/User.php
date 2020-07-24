@@ -66,7 +66,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *              "security_message"="Vous n'avez pas access à cette Ressource"
  *          },
  *          "get_formateur"={
- *              "method"="PUT",
+ *              "method"="GET",
  *              "path"="/formateurs/{id}",
  *              "requirements"={"id"="\d+"},
  *              "security"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
