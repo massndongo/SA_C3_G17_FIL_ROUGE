@@ -30,7 +30,6 @@ class UserController extends AbstractController
     public function addUser(Request $request,UserPasswordEncoderInterface $encoder,SerializerInterface $serializer,ValidatorInterface $validator,ProfilRepository $profil,EntityManagerInterface $manager)
     {
         $user = $request->request->all();
-//        $role = $profil->findOneBy(["libelle" => "ADMIN"]);
         $avatar = $request->files->get("avatar");
         $avatar = fopen($avatar->getRealPath(),"rb");
         $user["avatar"] = $avatar;
@@ -42,13 +41,10 @@ class UserController extends AbstractController
         }
         $password = $user->getPassword();
         $user->setPassword($encoder->encodePassword($user,$password));
-//        $user->setProfil($role);
         $manager->persist($user);
-//        $role->addUser($user);
         $manager->flush();
         fclose($avatar);
-        dd($user);
-        return $this->json($serializer->normalize($user),Response::HTTP_CREATED);
+        return $this->json($user,Response::HTTP_CREATED);
     }
 
 }
