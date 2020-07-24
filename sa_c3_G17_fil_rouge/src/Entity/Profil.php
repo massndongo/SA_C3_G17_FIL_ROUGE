@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -23,32 +24,33 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     },
  *     attributes={
  *          "pagination_items_per_page"=2,
- *          "security"="is_granted('ROLE_ADMIN')",
- *          "security_message"="Vous n'avez pas access à cette Ressource"
+ *          "security"="is_granted('ROLE_ADMIN')"
  *          },
  *
  *     )
  * @ORM\Entity(repositoryClass=ProfilRepository::class)
  */
-
 class Profil
 {
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"user:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
+     * @Groups({"user:read"})
      */
     private $libelle;
 
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="profil")
-     * @ApiSubresource(maxDepth=1)
+     * @ApiSubresource
+     * @Groups({"user:read"})
      */
     private $users;
 

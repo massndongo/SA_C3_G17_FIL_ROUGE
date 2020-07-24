@@ -6,8 +6,8 @@ use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -15,8 +15,15 @@ use Symfony\Component\Security\Core\User\UserInterface;
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ApiResource(
+ *     normalizationContext={"groups"={"user:read"}},
  *     attributes={"pagination_items_per_page"=5},
  *     collectionOperations={
+ *          "add_user"={
+ *              "method"="POST",
+ *              "path"="/admin/users",
+ *              "security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_CM')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource"
+ *          },
  *          "get_users"={
  *              "method"="GET",
  *              "path"="/admin/users",
@@ -26,8 +33,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *          "get_students"={
  *              "method"="GET",
  *              "path"="/apprenants",
- *              "security"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR')) or is_granted('ROLE_CM'))",
- *              "security_message"="Vous n'avez pas access à cette Ressource"
+ *              "security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *
  *          },
  *          "add_user"={
  *              "method"="POST",
@@ -54,11 +62,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *              "method"="GET",
  *              "path"="/apprenants/{id}",
  *              "requirements"={"id"="\d+"},
- *              "security"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR')) or is_granted('ROLE_CM') or is_granted('ROLE_APPRENANT))",
+ *              "security"="(is_granted('ROLE_ADMIN'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource"
  *          },
  *          "get_formateur"={
- *              "method"="PUT",
+ *              "method"="GET",
  *              "path"="/formateurs/{id}",
  *              "requirements"={"id"="\d+"},
  *              "security"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
@@ -101,34 +109,41 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"user:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank(message="Le username est obligatoire")
+     *@Groups({"user:read"})
      */
     private $username;
 
-
+    /**
+     *
+     * @Groups({"user:read"})
+    */
     private $roles = [];
 
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
      * @Assert\NotBlank(message="Le password est obligatoire")
+     * @Groups({"user:read"})
      */
     private $password;
 
     /**
      * @ORM\ManyToOne(targetEntity=Profil::class, inversedBy="user")
      * @ORM\JoinColumn(nullable=false)
-     * @ApiSubresource(maxDepth=1)
+     * @ApiSubresource
+     * @Groups({"user:read"})
      */
     private $profil;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="blob", nullable=true)
      *
      */
     private $avatar;
@@ -223,7 +238,7 @@ class User implements UserInterface
         return $this->avatar;
     }
 
-    public function setAvatar(File $avatar): self
+    public function setAvatar($avatar): self
     {
         $this->avatar = $avatar;
 
