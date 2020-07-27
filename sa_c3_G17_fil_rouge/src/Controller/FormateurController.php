@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Formateur;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,12 +22,12 @@ class FormateurController extends AbstractController
      *     methods={"GET"},
      *     defaults={
      *          "__controller"="App\Controller\FormateurController::getFormateur",
-     *          "__api_resource_class"=User::class,
+     *          "__api_resource_class"=Formateur::class,
      *          "__api_collection_operation_name"="get_formateur"
      *     }
      * )
      */
-    public function getFormateur(User $formateur)
+    public function getFormateur(Formateur $formateur)
     {
         $idFormateurProfil = 3;
         if($formateur->getProfil()->getId() == $idFormateurProfil){
@@ -42,12 +43,12 @@ class FormateurController extends AbstractController
      *     methods={"PUT"},
      *     defaults={
      *          "__controller"="App\Controller\FormateurController::setFormateur",
-     *          "__api_resource_class"=User::class,
+     *          "__api_resource_class"=Formateur::class,
      *          "__api_collection_operation_name"="set_formateur"
      *     }
      * )
      */
-    public function setFormateur(User $set_formateur,EntityManagerInterface $manager,Request $request,UserRepository $userRepository,SerializerInterface $serializer,ValidatorInterface $validator,UserPasswordEncoderInterface $encoder)
+    public function setFormateur(Formateur $set_formateur,EntityManagerInterface $manager,Request $request,UserRepository $userRepository,SerializerInterface $serializer,ValidatorInterface $validator,UserPasswordEncoderInterface $encoder)
     {
         $formateur_profil = $userRepository->findOneBy([
             "id" => 3

@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Controller;
+use App\Entity\Apprenant;
 use App\Entity\User;
+use App\Repository\ApprenantRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,19 +22,15 @@ class ApprenantController extends AbstractController
      *     methods={"GET"},
      *     defaults={
      *          "__controller"="App\Controller\ApprenantController::getApprenants",
-     *          "__api_resource_class"=User::class,
+     *          "__api_resource_class"=Apprenant::class,
      *          "__api_collection_operation_name"="get_students"
      *     }
      * )
      */
-    public function getApprenants(UserRepository $userRepository)
+    public function getApprenants(ApprenantRepository $apprenantRepository)
     {
-        $studens_profil = $userRepository->findOneBy([
-            "id" => 2
-        ]);
-        $studens = $userRepository->findBy([
-            "profil" => $studens_profil
-        ]);
+
+        $studens = $apprenantRepository->findAll();
         return $this->json($studens,Response::HTTP_OK);
     }
     /**
@@ -41,7 +39,7 @@ class ApprenantController extends AbstractController
      *     methods={"POST"},
      *     defaults={
      *          "__controller"="App\Controller\ApprenantController::getApprenants",
-     *          "__api_resource_class"=User::class,
+     *          "__api_resource_class"=Apprenant::class,
      *          "__api_collection_operation_name"="add_student"
      *     }
      * )
@@ -55,7 +53,7 @@ class ApprenantController extends AbstractController
         $avatar = $request->files->get("avatar");
         $avatar = fopen($avatar->getRealPath(),"rb");
         $student["avatar"] = $avatar;
-        $student = $serializer->denormalize($student,"App\Entity\User");
+        $student = $serializer->denormalize($student,"App\Entity\Apprenant");
         $errors = $validator->validate($student);
         if (count($errors)){
             $errors = $serializer->serialize($errors,"json");
@@ -81,12 +79,12 @@ class ApprenantController extends AbstractController
      *     methods={"GET"},
      *     defaults={
      *          "__controller"="App\Controller\ApprenantController::getStudent",
-     *          "__api_resource_class"=User::class,
+     *          "__api_resource_class"=Apprenant::class,
      *          "__api_collection_operation_name"="get_student"
      *     }
      * )
      */
-    public function getStudent(User $student)
+    public function getStudent(Apprenant $student)
     {
         $idStudentProfil = 2;
         if($student->getProfil()->getId() == $idStudentProfil){
@@ -102,12 +100,12 @@ class ApprenantController extends AbstractController
      *     methods={"PUT"},
      *     defaults={
      *          "__controller"="App\Controller\ApprenantController::setStudent",
-     *          "__api_resource_class"=User::class,
+     *          "__api_resource_class"=Apprenant::class,
      *          "__api_collection_operation_name"="set_student"
      *     }
      * )
      */
-    public function setStudent(User $set_student,EntityManagerInterface $manager,Request $request,UserRepository $userRepository,SerializerInterface $serializer,ValidatorInterface $validator,UserPasswordEncoderInterface $encoder)
+    public function setStudent(Apprenant $set_student,EntityManagerInterface $manager,Request $request,UserRepository $userRepository,SerializerInterface $serializer,ValidatorInterface $validator,UserPasswordEncoderInterface $encoder)
     {
         $student_profil = $userRepository->findOneBy([
             "id" => 2
@@ -116,7 +114,7 @@ class ApprenantController extends AbstractController
         $avatar = $request->files->get("avatar");
         $avatar = fopen($avatar->getRealPath(),"rb");
         $student["avatar"] = $avatar;
-        $student = $serializer->denormalize($student,"App\Entity\User");
+        $student = $serializer->denormalize($student,"App\Entity\Apprenant");
         $errors = $validator->validate($student);
         if (count($errors)){
             $errors = $serializer->serialize($errors,"json");

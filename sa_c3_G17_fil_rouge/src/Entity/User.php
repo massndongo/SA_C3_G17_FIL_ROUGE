@@ -14,92 +14,17 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorColumn(name="discriminator", type="string")
+ * @ORM\DiscriminatorMap({"user" = "User", "admin" = "Admin", "formateur" = "Formateur", "apprenant" = "Apprenant"})
  * @ApiResource(
  *     normalizationContext={"groups"={"user:read"}},
  *     attributes={"pagination_items_per_page"=5},
  *     collectionOperations={
- *          "add_user"={
- *              "method"="POST",
- *              "path"="/admin/users",
- *              "security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_CM')",
- *              "security_message"="Vous n'avez pas access à cette Ressource"
- *          },
- *          "get_users"={
- *              "method"="GET",
- *              "path"="/admin/users",
- *              "security"="is_granted('ROLE_ADMIN')",
- *              "security_message"="Vous n'avez pas access à cette Ressource"
- *          },
- *          "get_students"={
- *              "method"="GET",
- *              "path"="/apprenants",
- *              "security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR)",
- *              "security_message"="Vous n'avez pas access à cette Ressource",
  *
- *          },
- *          "add_user"={
- *              "method"="POST",
- *              "path"="/admin/users",
- *              "security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_CM')",
- *              "security_message"="Vous n'avez pas access à cette Ressource"
- *          },
- *          "add_student"={
- *              "method"="POST",
- *              "path"="/apprenants",
- *              "security"="is_granted('ROLE_ADMIN')",
- *              "security_message"="Vous n'avez pas access à cette Ressource"
- *          },
  *    },
  *     itemOperations={
- *          "get_user"={
- *              "method"="GET",
- *              "path"="/admin/users/{id}",
- *              "requirements"={"id"="\d+"},
- *              "security"="is_granted('ROLE_ADMIN')",
- *              "security_message"="Vous n'avez pas access à cette Ressource"
- *          },
- *          "get_student"={
- *              "method"="GET",
- *              "path"="/apprenants/{id}",
- *              "requirements"={"id"="\d+"},
- *              "security"="(is_granted('ROLE_ADMIN'))",
- *              "security_message"="Vous n'avez pas access à cette Ressource"
- *          },
- *          "get_formateur"={
- *              "method"="GET",
- *              "path"="/formateurs/{id}",
- *              "requirements"={"id"="\d+"},
- *              "security"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
- *              "security_message"="Vous n'avez pas access à cette Ressource"
- *          },
- *          "delete_user"={
- *              "method"="DELETE",
- *              "path"="/admin/users/{id}",
- *              "requirements"={"id"="\d+"},
- *              "security"="is_granted('ROLE_ADMIN')",
- *              "security_message"="Vous n'avez pas access à cette Ressource"
- *          },
- *          "set_user"={
- *              "method"="PUT",
- *              "path"="/admin/users/{id}",
- *              "requirements"={"id"="\d+"},
- *              "security"="is_granted('ROLE_ADMIN')",
- *              "security_message"="Vous n'avez pas access à cette Ressource"
- *          },
- *          "set_student"={
- *              "method"="PUT",
- *              "path"="/apprenants/{id}",
- *              "requirements"={"id"="\d+"},
- *              "security"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR')) or is_granted('ROLE_CM') or is_granted('ROLE_APPRENANT'))",
- *              "security_message"="Vous n'avez pas access à cette Ressource"
- *          },
- *          "set_formateur"={
- *              "method"="PUT",
- *              "path"="/formateurs/{id}",
- *              "requirements"={"id"="\d+"},
- *              "security"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
- *              "security_message"="Vous n'avez pas access à cette Ressource"
- *          },
+ *
  *     }
  *  )
  */
