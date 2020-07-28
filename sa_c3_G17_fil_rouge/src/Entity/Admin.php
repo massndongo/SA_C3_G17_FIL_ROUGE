@@ -7,7 +7,6 @@ use App\Repository\AdminRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ApiResource(
  *     itemOperations={
  *          "get_user"={
  *              "method"="GET",
@@ -62,7 +61,7 @@ class Admin extends User
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    protected $id;
 
     public function getId(): ?int
     {

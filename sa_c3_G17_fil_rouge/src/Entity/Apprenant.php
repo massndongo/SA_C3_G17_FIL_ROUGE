@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ApiResource(
+ *     normalizationContext={"groups"={"user:read"}},
  *     itemOperations={
  *          "get_student"={
  *              "method"="GET",
@@ -49,7 +50,7 @@ class Apprenant extends User
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    protected $id;
 
     public function getId(): ?int
     {

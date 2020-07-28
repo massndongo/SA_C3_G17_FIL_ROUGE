@@ -17,16 +17,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="discriminator", type="string")
  * @ORM\DiscriminatorMap({"user" = "User", "admin" = "Admin", "formateur" = "Formateur", "apprenant" = "Apprenant"})
- * @ApiResource(
- *     normalizationContext={"groups"={"user:read"}},
- *     attributes={"pagination_items_per_page"=5},
- *     collectionOperations={
- *
- *    },
- *     itemOperations={
- *
- *     }
- *  )
+ * @ApiResource()
  */
 class User implements UserInterface
 {
@@ -36,20 +27,20 @@ class User implements UserInterface
      * @ORM\Column(type="integer")
      * @Groups({"user:read"})
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank(message="Le username est obligatoire")
      *@Groups({"user:read"})
      */
-    private $username;
+    protected $username;
 
     /**
      *
      * @Groups({"user:read"})
     */
-    private $roles = [];
+    protected $roles = [];
 
     /**
      * @var string The hashed password
@@ -57,12 +48,12 @@ class User implements UserInterface
      * @Assert\NotBlank(message="Le password est obligatoire")
      * @Groups({"user:read"})
      */
-    private $password;
+    protected $password;
 
     /**
      * @ORM\ManyToOne(targetEntity=Profil::class, inversedBy="user")
      * @ORM\JoinColumn(nullable=false)
-     * @ApiSubresource
+     * @ApiSubresource()
      * @Groups({"user:read"})
      */
     private $profil;
@@ -72,6 +63,26 @@ class User implements UserInterface
      *
      */
     private $avatar;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isDeleted;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $prenom;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $nom;
+
+    /**
+     * @ORM\Column(type="string", length=255, unique=true)
+     */
+    private $email;
 
     public function getId(): ?int
     {
@@ -166,6 +177,54 @@ class User implements UserInterface
     public function setAvatar($avatar): self
     {
         $this->avatar = $avatar;
+
+        return $this;
+    }
+
+    public function getIsDeleted(): ?bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setIsDeleted(bool $isDeleted): self
+    {
+        $this->isDeleted = $isDeleted;
+
+        return $this;
+    }
+
+    public function getPrenom(): ?string
+    {
+        return $this->prenom;
+    }
+
+    public function setPrenom(string $prenom): self
+    {
+        $this->prenom = $prenom;
+
+        return $this;
+    }
+
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+
+    public function setNom(string $nom): self
+    {
+        $this->nom = $nom;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
 
         return $this;
     }

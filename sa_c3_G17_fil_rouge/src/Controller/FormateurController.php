@@ -4,15 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Formateur;
 use App\Entity\User;
-use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Request;
+use App\Repository\FormateurRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class FormateurController extends AbstractController
 {
@@ -27,16 +22,30 @@ class FormateurController extends AbstractController
      *     }
      * )
      */
-    public function getFormateur(Formateur $formateur)
+    public function getFormateur(User $formateur)
     {
-        $idFormateurProfil = 3;
-        if($formateur->getProfil()->getId() == $idFormateurProfil){
+        if($formateur->getRoles()[0] == "ROLE_FORMATEUR"){
             return $this->json($formateur,Response::HTTP_OK);
         }else{
             return $this->json(["message" => "Vous n'avez pas acces à cette ressource"],Response::HTTP_FORBIDDEN);
         }
     }
-
+    /**
+     * @Route(
+     *     path="/api/formateurs",
+     *     methods={"GET"},
+     *     defaults={
+     *          "__controller"="App\Controller\FormateurController::getFormateurs",
+     *          "__api_resource_class"=Formateur::class,
+     *          "__api_collection_operation_name"="get_formateurs"
+     *     }
+     * )
+    */
+    public function getFormateurs(FormateurRepository $formateurRepository)
+    {
+        $formateurs = $formateurRepository->findAll();
+        return $this->json($formateurs,Response::HTTP_OK);
+    }
      /**
      * @Route(
      *     path="/api/formateurs/{id<\d+>}",
@@ -48,40 +57,10 @@ class FormateurController extends AbstractController
      *     }
      * )
      */
-    public function setFormateur(Formateur $set_formateur,EntityManagerInterface $manager,Request $request,UserRepository $userRepository,SerializerInterface $serializer,ValidatorInterface $validator,UserPasswordEncoderInterface $encoder)
+    public function setFormateur(Formateur $formateur)
     {
-        $formateur_profil = $userRepository->findOneBy([
-            "id" => 3
-        ]);
-        $formateur = $request->request->all();
-        $avatar = $request->files->get("avatar");
-        $avatar = fopen($avatar->getRealPath(),"rb");
-        $formateur["avatar"] = $avatar;
-        $formateur = $serializer->denormalize($formateur,"App\Entity\User");
-        $errors = $validator->validate($formateur);
-        if (count($errors)){
-            $errors = $serializer->serialize($errors,"json");
-            return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
-        }else if($formateur->getProfil()->getId() != $formateur_profil->getId()){
-            $errors = [
-                "message" => "Veuillez choisir le profil formateur"
-            ];
-            $errors = $serializer->serialize($errors,"json");
-            return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
+        if($formateur->getRoles()[0] == "ROLE_FORMATEUR"){
         }
-        $password = $formateur->getPassword();
-        $formateur->setPassword($encoder->encodePassword($formateur,$password));
-        if($formateur->getPassword() != $set_formateur->getPassword()){
-            $set_formateur->setPassword($formateur->getPassword());
-        }
-        if($formateur->getUsername() != $set_formateur->getUsername()){
-            $set_formateur->setUsername($formateur->getUsername());
-        }
-        if($formateur->getAvatar() != $set_formateur->getAvatar()){
-            $set_formateur->setAvatar($formateur->getAvatar());
-        }
-        $manager->flush();
-        fclose($avatar);
-        return $this->json($formateur,Response::HTTP_CREATED);
+        return $this->json(["message" => "Vous n'avez pas acces à cette ressource"],Response::HTTP_FORBIDDEN);
     }
 }

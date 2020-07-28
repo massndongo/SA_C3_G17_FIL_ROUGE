@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ApiResource(
+ *     normalizationContext={"groups"={"user:read"}},
  *     itemOperations={
  *          "get_formateur"={
  *              "method"="GET",
@@ -25,7 +26,12 @@ use Doctrine\ORM\Mapping as ORM;
  *          },
  *     },
  *     collectionOperations={
- *
+ *          "get_formateurs"={
+ *              "method"="GET",
+ *              "path"="/formateurs/",
+ *              "security"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
+ *              "security_message"="Vous n'avez pas access à cette Ressource"
+ *          },
  *     }
  * )
  * @ORM\Entity(repositoryClass=FormateurRepository::class)
@@ -37,7 +43,7 @@ class Formateur extends User
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    protected $id;
 
     public function getId(): ?int
     {
