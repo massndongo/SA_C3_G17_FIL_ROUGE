@@ -7,9 +7,57 @@ use App\Repository\GroupeCompetenceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     attributes={
+ *          "security"="is_granted('ROLE_ADMIN')"
+ *     },
+ *     collectionOperations={
+ *          "get_grpeCompetences"={
+ *              "method" = "GET",
+ *              "path" = "/admin/grpecompetences",
+ *              "access_control"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
+ *              "access_control_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "get_competences"={
+ *              "method" = "GET",
+ *              "path" = "/admin/grpecompetences/competences",
+ *              "access_control"="is_granted('ROLE_ADMIN')",
+ *              "access_control_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "add_groupeCompetence"={
+ *              "method" = "POST",
+ *              "path" = "/admin/grpecompetences",
+ *              "access_control"="is_granted('ROLE_ADMIN')",
+ *              "access_control_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *     },
+ *     itemOperations={
+ *          "get_groupeCompetence"={
+ *              "method" = "GET",
+ *              "path" = "/admin/grpecompetences/{id}",
+ *              "requirements"={"id"="\d+"},
+ *              "access_control"="is_granted('ROLE_ADMIN') or is_granted('ROLE_FROMATEUR')",
+ *              "access_control_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "get_competence_in_grpeCompetence"={
+ *              "method" = "GET",
+ *              "path" = "/admin/grpecompetences/{id}/competences",
+ *              "requirements"={"id"="\d+"},
+ *              "access_control"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FROMATEUR'))",
+ *              "access_control_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "set_grpeCompetence"={
+ *              "method" = "PUT",
+ *              "path" = "/admin/grpecompetences/{id}",
+ *              "requirements"={"id"="\d+"},
+ *              "access_control"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FROMATEUR'))",
+ *              "access_control_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *     }
+ * )
  * @ORM\Entity(repositoryClass=GroupeCompetenceRepository::class)
  */
 class GroupeCompetence
@@ -23,24 +71,33 @@ class GroupeCompetence
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank()
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank()
      */
     private $descriptif;
 
     /**
      * @ORM\ManyToOne(targetEntity=Admin::class, inversedBy="groupeCompetences")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotBlank()
      */
     private $administrateur;
 
     /**
      * @ORM\ManyToMany(targetEntity=Competence::class, mappedBy="groupeCompetence")
+     * @Assert\NotNull()
      */
     private $competences;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isDeleted;
 
     public function __construct()
     {
@@ -112,6 +169,18 @@ class GroupeCompetence
             $this->competences->removeElement($competence);
             $competence->removeGroupeCompetence($this);
         }
+
+        return $this;
+    }
+
+    public function getIsDeleted(): ?bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setIsDeleted(bool $isDeleted): self
+    {
+        $this->isDeleted = $isDeleted;
 
         return $this;
     }

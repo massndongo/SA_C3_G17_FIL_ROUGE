@@ -31,6 +31,11 @@ class Competence
      */
     private $groupeCompetence;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isDeleted;
+
     public function __construct()
     {
         $this->groupeCompetence = new ArrayCollection();
@@ -75,6 +80,18 @@ class Competence
         if ($this->groupeCompetence->contains($groupeCompetence)) {
             $this->groupeCompetence->removeElement($groupeCompetence);
         }
+
+        return $this;
+    }
+
+    public function getIsDeleted(): ?bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setIsDeleted(bool $isDeleted): self
+    {
+        $this->isDeleted = $isDeleted;
 
         return $this;
     }
