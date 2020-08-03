@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\AdminRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -63,8 +65,49 @@ class Admin extends User
      */
     protected $id;
 
+    /**
+     * @ORM\OneToMany(targetEntity=GroupeCompetence::class, mappedBy="administrateur")
+     */
+    private $groupeCompetences;
+
+    public function __construct()
+    {
+        $this->groupeCompetences = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * @return Collection|GroupeCompetence[]
+     */
+    public function getGroupeCompetences(): Collection
+    {
+        return $this->groupeCompetences;
+    }
+
+    public function addGroupeCompetence(GroupeCompetence $groupeCompetence): self
+    {
+        if (!$this->groupeCompetences->contains($groupeCompetence)) {
+            $this->groupeCompetences[] = $groupeCompetence;
+            $groupeCompetence->setAdministrateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGroupeCompetence(GroupeCompetence $groupeCompetence): self
+    {
+        if ($this->groupeCompetences->contains($groupeCompetence)) {
+            $this->groupeCompetences->removeElement($groupeCompetence);
+            // set the owning side to null (unless already changed)
+            if ($groupeCompetence->getAdministrateur() === $this) {
+                $groupeCompetence->setAdministrateur(null);
+            }
+        }
+
+        return $this;
     }
 }
