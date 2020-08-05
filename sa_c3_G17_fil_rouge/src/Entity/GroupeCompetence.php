@@ -7,31 +7,30 @@ use App\Repository\GroupeCompetenceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
- *     attributes={
- *          "security"="is_granted('ROLE_ADMIN')"
- *     },
+ *
  *     collectionOperations={
  *          "get_grpeCompetences"={
  *              "method" = "GET",
  *              "path" = "/admin/grpecompetences",
- *              "access_control"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
- *              "access_control_message"="Vous n'avez pas access à cette Ressource",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
  *          "get_competences"={
  *              "method" = "GET",
  *              "path" = "/admin/grpecompetences/competences",
- *              "access_control"="is_granted('ROLE_ADMIN')",
+ *              "access_control"="is_granted('ROLE_FORMATEUR')",
  *              "access_control_message"="Vous n'avez pas access à cette Ressource",
  *          },
  *          "add_groupeCompetence"={
  *              "method" = "POST",
  *              "path" = "/admin/grpecompetences",
- *              "access_control"="is_granted('ROLE_ADMIN')",
- *              "access_control_message"="Vous n'avez pas access à cette Ressource",
+ *              "security_post_denormalize"="is_granted('EDIT',object)",
+ *              "security_post_denormalize_message"="Vous n'avez pas access à cette Ressource",
  *          },
  *     },
  *     itemOperations={
@@ -39,22 +38,22 @@ use Symfony\Component\Validator\Constraints as Assert;
  *              "method" = "GET",
  *              "path" = "/admin/grpecompetences/{id}",
  *              "requirements"={"id"="\d+"},
- *              "access_control"="is_granted('ROLE_ADMIN') or is_granted('ROLE_FROMATEUR')",
- *              "access_control_message"="Vous n'avez pas access à cette Ressource",
+ *              "security"="is_granted('VIEW',object)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
  *          "get_competence_in_grpeCompetence"={
  *              "method" = "GET",
  *              "path" = "/admin/grpecompetences/{id}/competences",
  *              "requirements"={"id"="\d+"},
- *              "access_control"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FROMATEUR'))",
- *              "access_control_message"="Vous n'avez pas access à cette Ressource",
+ *              "security"="is_granted('VIEW',object)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
  *          "set_grpeCompetence"={
  *              "method" = "PUT",
  *              "path" = "/admin/grpecompetences/{id}",
  *              "requirements"={"id"="\d+"},
- *              "access_control"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FROMATEUR'))",
- *              "access_control_message"="Vous n'avez pas access à cette Ressource",
+ *              "security"="is_granted('SET',object)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
  *     }
  * )
@@ -66,6 +65,7 @@ class GroupeCompetence
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     *
      */
     private $id;
 
