@@ -32,7 +32,9 @@ class ApprenantController extends AbstractController
     public function getApprenants(ApprenantRepository $apprenantRepository)
     {
 
-        $studens = $apprenantRepository->findAll();
+        $studens = $apprenantRepository->findBy([
+            "isDeleted" => false
+        ]);
         return $this->json($studens,Response::HTTP_OK);
     }
     /**
