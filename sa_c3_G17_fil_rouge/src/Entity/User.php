@@ -69,16 +69,19 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"user:read"})
      */
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"user:read"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
+     * @Groups({"user:read"})
      */
     private $email;
 

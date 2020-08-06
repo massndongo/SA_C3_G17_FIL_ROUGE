@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
- *
+ *     normalizationContext={"groups"={"grpecompetence:read_m"}},
  *     collectionOperations={
  *          "get_grpeCompetences"={
  *              "method" = "GET",
@@ -65,19 +65,21 @@ class GroupeCompetence
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     *
+     * @Groups({"grpecompetence:read_m"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
+     * @Groups({"grpecompetence:read_m"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
+     * @Groups({"grpecompetence:read_m"})
      */
     private $descriptif;
 
@@ -85,12 +87,14 @@ class GroupeCompetence
      * @ORM\ManyToOne(targetEntity=Admin::class, inversedBy="groupeCompetences")
      * @ORM\JoinColumn(nullable=false)
      * @Assert\NotBlank()
+     *
      */
     private $administrateur;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Competence::class, mappedBy="groupeCompetence")
+     * @ORM\ManyToMany(targetEntity=Competence::class, mappedBy="groupeCompetence",cascade={"persist"})
      * @Assert\NotNull()
+     * @Groups({"grpecompetence:read_m"})
      */
     private $competences;
 
@@ -107,6 +111,12 @@ class GroupeCompetence
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
     }
 
     public function getLibelle(): ?string

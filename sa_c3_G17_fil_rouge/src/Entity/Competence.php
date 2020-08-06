@@ -7,10 +7,12 @@ use App\Repository\CompetenceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
+ *     normalizationContext={"groups"={"competence:read"}},
  *     collectionOperations={
  *          "get"={
  *              "path" = "/admin/competences",
@@ -48,6 +50,7 @@ class Competence
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"grpecompetence:read_m","competence:read"})
      */
     private $id;
 
@@ -56,14 +59,16 @@ class Competence
      * @Assert\NotBlank(
      *     message="Le libelle est obligatoire"
      * )
+     * @Groups({"grpecompetence:read_m","competence:read"})
      */
     private $libelle;
 
     /**
-     * @ORM\ManyToMany(targetEntity=GroupeCompetence::class, inversedBy="competences")
+     * @ORM\ManyToMany(targetEntity=GroupeCompetence::class, inversedBy="competences",cascade={"persist"})
      * @Assert\NotBlank(
      *     message="Une competence est dans au moins un groupe de competence"
      * )
+     * @Groups({"grpecompetence:read_m"})
      */
     private $groupeCompetence;
 
@@ -77,6 +82,7 @@ class Competence
      * @Assert\NotBlank(
      *     message="Le descriptif est obligatoire"
      * )
+     * @Groups({"grpecompetence:read_m","competence:read"})
      */
     private $descriptif;
 
@@ -88,6 +94,12 @@ class Competence
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
     }
 
     public function getLibelle(): ?string

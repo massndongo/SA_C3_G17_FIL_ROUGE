@@ -34,7 +34,7 @@ class CompetenceVoter extends Voter
             case 'VIEW':
                 // logic to determine if the user can VIEW
                 // return true or false
-                return $user->getRoles()[0] === "ROLE_FORMATEUR";
+                return $user->getRoles()[0] === "ROLE_ADMIN" || $user->getRoles()[0] === "ROLE_FORMATEUR";
                 break;
         }
 
