@@ -2,15 +2,17 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\CompetenceRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\CompetenceRepository;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-
 /**
  * @ApiResource(
+ *      normalizationContext={"groups"={"grpe:read"}},
  *     collectionOperations={
  *          "get"={
  *              "path" = "/admin/competences",
@@ -48,6 +50,7 @@ class Competence
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"grpe:read"})
      */
     private $id;
 
@@ -56,19 +59,22 @@ class Competence
      * @Assert\NotBlank(
      *     message="Le libelle est obligatoire"
      * )
+     * @Groups({"grpe:read"})
      */
-    private $libelle;
+    private $libelleC;
 
     /**
      * @ORM\ManyToMany(targetEntity=GroupeCompetence::class, inversedBy="competences")
      * @Assert\NotBlank(
      *     message="Une competence est dans au moins un groupe de competence"
      * )
+     * @ApiSubresource()
      */
     private $groupeCompetence;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"grpe:read"})
      */
     private $isDeleted;
 
@@ -77,8 +83,9 @@ class Competence
      * @Assert\NotBlank(
      *     message="Le descriptif est obligatoire"
      * )
+     * @Groups({"grpe:read"})
      */
-    private $descriptif;
+    private $descriptifC;
 
     public function __construct()
     {
@@ -92,7 +99,7 @@ class Competence
 
     public function getLibelle(): ?string
     {
-        return $this->libelle;
+        return $this->libelleC;
     }
 
     public function setLibelle(string $libelle): self
@@ -142,7 +149,7 @@ class Competence
 
     public function getDescriptif(): ?string
     {
-        return $this->descriptif;
+        return $this->descriptifC;
     }
 
     public function setDescriptif(string $descriptif): self

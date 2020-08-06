@@ -20,7 +20,11 @@ class GroupeCompetenceController extends AbstractController
      * @Route(
      *     path="/api/admin/grpecompetences",
      *     methods={"GET"},
-     *
+     *     defaults={
+     *          "__controller"="App\Controller\GroupeCompetenceController::getGroupeCompetences",
+     *          "__api_resource_class"=GroupeCompetence::class,
+     *          "__api_collection_operation_name"="get_grpeCompetences"
+     *     }
      * )
      */
     public function getGroupeCompetences(GroupeCompetenceRepository $groupeCompetenceRepository)
@@ -105,17 +109,16 @@ class GroupeCompetenceController extends AbstractController
             return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
         $groupeCompetence = $request->getContent();
         $administrateur = $tokenStorage->getToken()->getUser();
-        $groupeCompetence = $serializer->deserialize($groupeCompetence,"App\Entity\GroupeCompetence","json");
+        $groupeCompetence = $serializer->deserialize($groupeCompetence,"App\Entity\GroupeCompetence",'json');
         $groupeCompetence->setIsDeleted(false)
                          ->setAdministrateur($administrateur);
-        dd($groupeCompetence);
         $errors = (array)$validator->validate($groupeCompetence);
         if(count($errors)){
             return $this->json($errors,Response::HTTP_BAD_REQUEST);
         }
-        if (!count($groupeCompetence->getCompetences()))
-            return $this->json(["message" => "Ajoutez au moins une competence à cet groupe de competence."],Response::HTTP_BAD_REQUEST);
-        dd($groupeCompetence);
+        if (!count($groupeCompetence->getCompetences())){
+            return $this->json(["message" => "Ajoutez au moins une competence a cet groupe de competence."],Response::HTTP_BAD_REQUEST); 
+        } 
         $manager->persist($groupeCompetence);
         $manager->flush();
         return $this->json($groupeCompetence,Response::HTTP_CREATED);

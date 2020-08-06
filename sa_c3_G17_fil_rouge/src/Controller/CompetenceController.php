@@ -24,8 +24,8 @@ class CompetenceController extends AbstractController
     public function getCompetence($id,CompetenceRepository $competenceRepository)
     {
         $competence = new Competence();
-        if(!$this->isGranted("VIEW",$competence))
-            return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
+        //if(!$this->isGranted("VIEW",$competence))
+          //  return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
         $competence = $competenceRepository->findOneBy([
             "id" => $id
         ]);

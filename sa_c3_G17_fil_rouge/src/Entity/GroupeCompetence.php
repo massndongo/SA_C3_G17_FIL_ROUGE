@@ -2,17 +2,19 @@
 
 namespace App\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\GroupeCompetenceRepository;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
- *
+ *     
  *     collectionOperations={
  *          "get_grpeCompetences"={
  *              "method" = "GET",
@@ -65,32 +67,40 @@ class GroupeCompetence
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     *
+     * @Groups({"grpe:read"})
      */
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()
+     * @ORM\Column(type="string", length=255) 
+     * @Groups({"grpe:read"})  
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()
+     * @Groups({"grpe:read"})
      */
     private $descriptif;
 
     /**
      * @ORM\ManyToOne(targetEntity=Admin::class, inversedBy="groupeCompetences")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinTable(
+     *     name="AdminToGroupeCompetence",
+     *     joinColumns={@ORM\JoinColumn(name="groupecompetence_id", referencedColumnName="id", nullable=false)},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="administrateur_id", referencedColumnName="id", nullable=false)}
+     * )
      * @Assert\NotBlank()
+     * @ApiSubresource()
+     * @Groups({"grpe:read"})
      */
     private $administrateur;
 
     /**
      * @ORM\ManyToMany(targetEntity=Competence::class, mappedBy="groupeCompetence")
      * @Assert\NotNull()
+     * @ApiSubresource()
+     * @Groups({"grpe:read"})
      */
     private $competences;
 
