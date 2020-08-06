@@ -39,10 +39,11 @@ class GroupeCompetenceVoter extends Voter
             case 'DELETE':
                 // logic to determine if the user can VIEW
                 // return true or false
-                return $user->getRoles()[0] === "ROLE_ADMIN";
+                return $user === $subject->getAdministrateur() ? true: false;
                 break;
             case 'SET':
-                return $user === $subject->getAdministrateur() ? true: false;
+
+                return $user->getRoles()[0] === "ROLE_ADMIN";
         }
 
         return false;

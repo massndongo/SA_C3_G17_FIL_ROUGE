@@ -86,9 +86,19 @@ class Competence
      */
     private $descriptif;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="competence")
+     * @Assert\NotNull(
+     *     message="Les niveaux d'évaluation sont obligatoires"
+     * )
+     * @Groups({"grpecompetence:read_m","competence:read"})
+     */
+    private $niveaux;
+
     public function __construct()
     {
         $this->groupeCompetence = new ArrayCollection();
+        $this->niveaux = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -160,6 +170,37 @@ class Competence
     public function setDescriptif(string $descriptif): self
     {
         $this->descriptif = $descriptif;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Niveau[]
+     */
+    public function getNiveaux(): Collection
+    {
+        return $this->niveaux;
+    }
+
+    public function addNiveau(Niveau $niveau): self
+    {
+        if (!$this->niveaux->contains($niveau)) {
+            $this->niveaux[] = $niveau;
+            $niveau->setCompetence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNiveau(Niveau $niveau): self
+    {
+        if ($this->niveaux->contains($niveau)) {
+            $this->niveaux->removeElement($niveau);
+            // set the owning side to null (unless already changed)
+            if ($niveau->getCompetence() === $this) {
+                $niveau->setCompetence(null);
+            }
+        }
 
         return $this;
     }
