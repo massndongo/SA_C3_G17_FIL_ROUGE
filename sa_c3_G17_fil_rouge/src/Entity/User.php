@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiSubresource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
@@ -84,6 +86,16 @@ class User implements UserInterface
      * @Groups({"user:read"})
      */
     private $email;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Promos::class, mappedBy="user")
+     */
+    private $promos;
+
+    public function __construct()
+    {
+        $this->promos = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -223,6 +235,37 @@ class User implements UserInterface
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Promos[]
+     */
+    public function getPromos(): Collection
+    {
+        return $this->promos;
+    }
+
+    public function addPromos(Promos $promo): self
+    {
+        if (!$this->promos->contains($promo)) {
+            $this->promos[] = $promo;
+            $promo->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePromos(Promos $promo): self
+    {
+        if ($this->promos->contains($promo)) {
+            $this->promos->removeElement($promo);
+            // set the owning side to null (unless already changed)
+            if ($promo->getUser() === $this) {
+                $promo->setUser(null);
+            }
+        }
 
         return $this;
     }

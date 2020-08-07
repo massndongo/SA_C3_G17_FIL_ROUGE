@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\ApprenantRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -52,8 +54,47 @@ class Apprenant extends User
      */
     protected $id;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Groupes::class, mappedBy="apprenant")
+     */
+    private $groupes;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->groupes = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * @return Collection|Groupes[]
+     */
+    public function getGroupes(): Collection
+    {
+        return $this->groupes;
+    }
+
+    public function addGroupe(Groupes $groupe): self
+    {
+        if (!$this->groupes->contains($groupe)) {
+            $this->groupes[] = $groupe;
+            $groupe->addApprenant($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGroupe(Groupes $groupe): self
+    {
+        if ($this->groupes->contains($groupe)) {
+            $this->groupes->removeElement($groupe);
+            $groupe->removeApprenant($this);
+        }
+
+        return $this;
     }
 }
