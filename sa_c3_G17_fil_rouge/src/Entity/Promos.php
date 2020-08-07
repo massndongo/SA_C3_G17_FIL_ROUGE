@@ -62,7 +62,7 @@ class Promos
     private $dateFinReelle;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="boolean")
      */
     private $etat;
 
@@ -70,11 +70,6 @@ class Promos
      * @ORM\ManyToOne(targetEntity=Referentiel::class, inversedBy="promos")
      */
     private $referentiel;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="promos")
-     */
-    private $user;
 
     /**
      * @ORM\ManyToMany(targetEntity=Formateur::class, inversedBy="promos")
@@ -90,6 +85,11 @@ class Promos
      * @ORM\Column(type="boolean")
      */
     private $isDeleted;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Admin::class, inversedBy="promos")
+     */
+    private $admin;
 
     public function __construct()
     {
@@ -222,18 +222,6 @@ class Promos
         return $this;
     }
 
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): self
-    {
-        $this->user = $user;
-
-        return $this;
-    }
-
     /**
      * @return Collection|Formateur[]
      */
@@ -299,6 +287,18 @@ class Promos
     public function setIsDeleted(bool $isDeleted): self
     {
         $this->isDeleted = $isDeleted;
+
+        return $this;
+    }
+
+    public function getAdmin(): ?Admin
+    {
+        return $this->admin;
+    }
+
+    public function setAdmin(?Admin $admin): self
+    {
+        $this->admin = $admin;
 
         return $this;
     }
