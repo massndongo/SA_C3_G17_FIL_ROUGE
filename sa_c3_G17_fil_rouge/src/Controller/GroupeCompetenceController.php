@@ -112,10 +112,9 @@ class GroupeCompetenceController extends AbstractController
             ->setAdministrateur($administrateur);
         $groupeCompetenceObj = $this->addComptenceToGroupe($competences,$serializer,$validator,$groupeCompetenceObj,$manager,$competenceRepository);
         $errors = (array)$validator->validate($groupeCompetenceObj);
-        if(count($errors)){
+        if(count($errors))
             return $this->json($errors,Response::HTTP_BAD_REQUEST);
-        }
-        if (!count($groupeCompetenceObj->getCompetences()))
+        if (!count($competences))
             return $this->json(["message" => "Ajoutez au moins une competence à cet groupe de competence."],Response::HTTP_BAD_REQUEST);
         $manager->persist($groupeCompetenceObj);
         $manager->flush();
@@ -167,10 +166,12 @@ class GroupeCompetenceController extends AbstractController
         $groupeCompetenceObj->setId((int)$id)
             ->setAdministrateur($groupeCompetence->getAdministrateur())
             ->SetIsDeleted(false);
-        if($groupeCompetence){
-            if(!$groupeCompetence->getIsDeleted()){
+        if($groupeCompetence)
+        {
+            if(!$groupeCompetence->getIsDeleted())
+            {
                 $groupeCompetenceObj = $this->addComptenceToGroupe($competences,$serializer,$validator,$groupeCompetenceObj,$manager,$competenceRepository);
-                if(!($groupeCompetence == $groupeCompetenceObj)){
+                if($groupeCompetence != $groupeCompetenceObj){
                     $comptences = $groupeCompetence->getCompetences();
                     $groupeCompetence = $this->removeCompetence($groupeCompetence,$comptences);
                     $comptencesObj = $groupeCompetenceObj->getCompetences();

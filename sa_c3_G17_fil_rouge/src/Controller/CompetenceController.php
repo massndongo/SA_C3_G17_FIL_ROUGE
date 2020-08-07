@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Competence;
 use App\Repository\CompetenceRepository;
 use App\Repository\GroupeCompetenceRepository;
+use App\Repository\NiveauRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -112,22 +113,78 @@ class CompetenceController extends AbstractController
      *     name="setCompetence"
      * )
      */
-    public function setCompetence($id,CompetenceRepository $competenceRepository,TokenStorageInterface $tokenStorage,Request $request,SerializerInterface $serializer,EntityManagerInterface $manager,ValidatorInterface $validator,GroupeCompetenceRepository $groupeCompetenceRepository)
+    public function setCompetence($id,CompetenceRepository $competenceRepository,NiveauRepository $niveauRepository,TokenStorageInterface $tokenStorage,Request $request,SerializerInterface $serializer,EntityManagerInterface $manager,ValidatorInterface $validator,GroupeCompetenceRepository $groupeCompetenceRepository)
     {
         $competence = new Competence();
         if(!($this->isGranted("SET",$competence)))
             return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
-
-    }
-
-    private function remoGroupeFromCompetence($competenceObj)
-    {
-        $groupes = $competenceObj->getGroupeCompetence();
-        foreach ($groupes as $groupe){
-            $competenceObj->removeGroupeCompetence($groupe);
+        $competence = $competenceRepository->findOneBy([
+            "id" => $id
+        ]);
+        if(!$competence || $competence->getIsDeleted())
+            return  $this->json(["message" => "Ressource inexistante."],Response::HTTP_NOT_FOUND);
+        $competenceJson = $request->getContent();
+        $competenceTab = $serializer->decode($competenceJson,"json");
+        $groupeCompetence = isset($competenceTab["groupeCompetences"]) ? $competenceTab["groupeCompetences"] : [];
+        $niveaux = isset($competenceTab["niveaux"]) ? $competenceTab["niveaux"] : [];
+        $competenceTab["groupeCompetences"] = [];
+        $competenceTab["niveaux"] = [];
+        $competenceObj = $serializer->denormalize($competenceTab,"App\Entity\Competence");
+        $errors = $validator->validate($competenceObj);
+        if(count($errors))
+            return $this->json($errors,Response::HTTP_BAD_REQUEST);
+        if( count($niveaux) < 3)
+            return $this->json(["message" => "Les niveaux (3)  sont obligatoires."],Response::HTTP_BAD_REQUEST);
+        if(!count($groupeCompetence) || !isset($groupeCompetence[0]["id"]))
+            return $this->json(["message" => "Le groupe de competence est obligatoire."],Response::HTTP_BAD_REQUEST);
+        $idGrpeCompetence = (int) $groupeCompetence[0]["id"];
+        $oldGroupeCompetenceObj = $groupeCompetenceRepository->findOneBy([
+            "id" => $idGrpeCompetence
+        ]);
+        if(!$oldGroupeCompetenceObj || $oldGroupeCompetenceObj->getIsDeleted())
+            return $this->json(["message" => "Ressource inexistante."],Response::HTTP_NOT_FOUND);
+        $competenceObj->addGroupeCompetence($oldGroupeCompetenceObj);
+        foreach ($niveaux as $niveau)
+        {
+            $level = $serializer->denormalize($niveau,"App\Entity\Niveau");
+            $idLevel = isset($niveau["id"]) ? $niveau["id"] : null;
+            $levels = $competence->getNiveaux()->getValues();
+            if($idLevel)
+            {
+                $oldLevel = $niveauRepository->findOneBy([
+                    "id" => $idLevel
+                ]);
+                if(!$oldLevel || $oldLevel->getIsDeleted())
+                    return $this->json(["message" => "ressource inexistante"],Response::HTTP_NOT_FOUND);
+                if(!in_array($oldLevel,$levels))
+                    return $this->json(["message" => "Cette niveau n'est pas dans cette competence."],Response::HTTP_BAD_REQUEST);
+                $error = $validator->validate($level);
+                if (count($error))
+                    return $this->json($error,Response::HTTP_BAD_REQUEST);
+                $level->setId($idLevel);
+                if($oldLevel != $level)
+                {
+                    $oldLevel->setLibelle($level->getLibelle())
+                             ->setGroupeAction($level->getGroupeAction())
+                             ->setCritereEvaluation($level->getCritereEvaluation());
+                }
+            }else{
+                if (count($levels) > 3)
+                    return $this->json(["message" => "Une competence a au maximum 3 niveaux."],Response::HTTP_BAD_REQUEST);
+                $error = $validator->validate($levels);
+                if (count($error))
+                    $this->json($error,Response::HTTP_BAD_REQUEST);
+                $level->setIsDeleted(false);
+                $manager->persist($level);
+                $competence->addNiveau($level);
+            }
         }
-        return $competenceObj;
+        $competence->setLibelle($competenceObj->getLibelle())
+                    ->setDescriptif($competenceObj->getDescriptif());
+        $manager->flush();
+        return $this->json($competence,Response::HTTP_OK);
     }
+
 
     private function addGroupeToCompetence($groupeCompetences,$groupeCompetenceRepository,$serializer,$administrateur,$validator,$competenceObj,$manager)
     {
