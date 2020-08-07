@@ -2,19 +2,17 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\JoinColumn;
-use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\GroupeCompetenceRepository;
-use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
- *     
+ *     normalizationContext={"groups"={"grpecompetence:read_m"}},
  *     collectionOperations={
  *          "get_grpeCompetences"={
  *              "method" = "GET",
@@ -67,40 +65,36 @@ class GroupeCompetence
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"grpe:read"})
+     * @Groups({"grpecompetence:read_m"})
      */
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255) 
-     * @Groups({"grpe:read"})  
+     * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank()
+     * @Groups({"grpecompetence:read_m"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"grpe:read"})
+     * @Assert\NotBlank()
+     * @Groups({"grpecompetence:read_m"})
      */
     private $descriptif;
 
     /**
      * @ORM\ManyToOne(targetEntity=Admin::class, inversedBy="groupeCompetences")
-     * @ORM\JoinTable(
-     *     name="AdminToGroupeCompetence",
-     *     joinColumns={@ORM\JoinColumn(name="groupecompetence_id", referencedColumnName="id", nullable=false)},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="administrateur_id", referencedColumnName="id", nullable=false)}
-     * )
+     * @ORM\JoinColumn(nullable=false)
      * @Assert\NotBlank()
-     * @ApiSubresource()
-     * @Groups({"grpe:read"})
+     *
      */
     private $administrateur;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Competence::class, mappedBy="groupeCompetence")
+     * @ORM\ManyToMany(targetEntity=Competence::class, mappedBy="groupeCompetence",cascade={"persist"})
      * @Assert\NotNull()
-     * @ApiSubresource()
-     * @Groups({"grpe:read"})
+     * @Groups({"grpecompetence:read_m"})
      */
     private $competences;
 
@@ -109,14 +103,26 @@ class GroupeCompetence
      */
     private $isDeleted;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Referentiel::class, mappedBy="groupeCompetence")
+     */
+    private $referentiels;
+
     public function __construct()
     {
         $this->competences = new ArrayCollection();
+        $this->referentiels = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
     }
 
     public function getLibelle(): ?string
@@ -191,6 +197,34 @@ class GroupeCompetence
     public function setIsDeleted(bool $isDeleted): self
     {
         $this->isDeleted = $isDeleted;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Referentiel[]
+     */
+    public function getReferentiels(): Collection
+    {
+        return $this->referentiels;
+    }
+
+    public function addReferentiel(Referentiel $referentiel): self
+    {
+        if (!$this->referentiels->contains($referentiel)) {
+            $this->referentiels[] = $referentiel;
+            $referentiel->addGroupeCompetence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReferentiel(Referentiel $referentiel): self
+    {
+        if ($this->referentiels->contains($referentiel)) {
+            $this->referentiels->removeElement($referentiel);
+            $referentiel->removeGroupeCompetence($this);
+        }
 
         return $this;
     }

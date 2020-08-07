@@ -2,17 +2,17 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-use App\Repository\CompetenceRepository;
-use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
-use ApiPlatform\Core\Annotation\ApiSubresource;
+use App\Repository\CompetenceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+
 /**
  * @ApiResource(
- *      normalizationContext={"groups"={"grpe:read"}},
+ *     normalizationContext={"groups"={"competence:read"}},
  *     collectionOperations={
  *          "get"={
  *              "path" = "/admin/competences",
@@ -50,7 +50,7 @@ class Competence
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"grpe:read"})
+     * @Groups({"grpecompetence:read_m","competence:read"})
      */
     private $id;
 
@@ -59,22 +59,21 @@ class Competence
      * @Assert\NotBlank(
      *     message="Le libelle est obligatoire"
      * )
-     * @Groups({"grpe:read"})
+     * @Groups({"grpecompetence:read_m","competence:read"})
      */
-    private $libelleC;
+    private $libelle;
 
     /**
-     * @ORM\ManyToMany(targetEntity=GroupeCompetence::class, inversedBy="competences")
+     * @ORM\ManyToMany(targetEntity=GroupeCompetence::class, inversedBy="competences",cascade={"persist"})
      * @Assert\NotBlank(
      *     message="Une competence est dans au moins un groupe de competence"
      * )
-     * @ApiSubresource()
+     * @Groups({"grpecompetence:read_m"})
      */
     private $groupeCompetence;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"grpe:read"})
      */
     private $isDeleted;
 
@@ -83,13 +82,23 @@ class Competence
      * @Assert\NotBlank(
      *     message="Le descriptif est obligatoire"
      * )
-     * @Groups({"grpe:read"})
+     * @Groups({"grpecompetence:read_m","competence:read"})
      */
-    private $descriptifC;
+    private $descriptif;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="competence")
+     * @Assert\NotNull(
+     *     message="Les niveaux d'évaluation sont obligatoires"
+     * )
+     * @Groups({"grpecompetence:read_m","competence:read"})
+     */
+    private $niveaux;
 
     public function __construct()
     {
         $this->groupeCompetence = new ArrayCollection();
+        $this->niveaux = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -97,9 +106,15 @@ class Competence
         return $this->id;
     }
 
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
     public function getLibelle(): ?string
     {
-        return $this->libelleC;
+        return $this->libelle;
     }
 
     public function setLibelle(string $libelle): self
@@ -149,12 +164,43 @@ class Competence
 
     public function getDescriptif(): ?string
     {
-        return $this->descriptifC;
+        return $this->descriptif;
     }
 
     public function setDescriptif(string $descriptif): self
     {
         $this->descriptif = $descriptif;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Niveau[]
+     */
+    public function getNiveaux(): Collection
+    {
+        return $this->niveaux;
+    }
+
+    public function addNiveau(Niveau $niveau): self
+    {
+        if (!$this->niveaux->contains($niveau)) {
+            $this->niveaux[] = $niveau;
+            $niveau->setCompetence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNiveau(Niveau $niveau): self
+    {
+        if ($this->niveaux->contains($niveau)) {
+            $this->niveaux->removeElement($niveau);
+            // set the owning side to null (unless already changed)
+            if ($niveau->getCompetence() === $this) {
+                $niveau->setCompetence(null);
+            }
+        }
 
         return $this;
     }
