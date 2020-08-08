@@ -113,6 +113,9 @@
     "doctrine/sql-formatter": {
         "version": "1.1.0"
     },
+    "egulias/email-validator": {
+        "version": "2.1.18"
+    },
     "fig/link-util": {
         "version": "1.1.1"
     },
@@ -165,7 +168,7 @@
         "version": "2.8.0"
     },
     "php": {
-        "version": "7.3"
+        "version": "7.4"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
@@ -202,6 +205,9 @@
         "files": [
             "./config/packages/sensio_framework_extra.yaml"
         ]
+    },
+    "swiftmailer/swiftmailer": {
+        "version": "v6.2.3"
     },
     "symfony/asset": {
         "version": "v5.1.2"
@@ -312,6 +318,9 @@
     "symfony/polyfill-intl-grapheme": {
         "version": "v1.18.0"
     },
+    "symfony/polyfill-intl-idn": {
+        "version": "v1.18.1"
+    },
     "symfony/polyfill-intl-normalizer": {
         "version": "v1.18.0"
     },
@@ -382,6 +391,20 @@
     },
     "symfony/string": {
         "version": "v5.1.2"
+    },
+    "symfony/swiftmailer-bundle": {
+        "version": "2.5",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "2.5",
+            "ref": "ae4d22af30bbd484506bc1817c5a3ef72c855b93"
+        },
+        "files": [
+            "config/packages/dev/swiftmailer.yaml",
+            "config/packages/swiftmailer.yaml",
+            "config/packages/test/swiftmailer.yaml"
+        ]
     },
     "symfony/translation-contracts": {
         "version": "v2.1.3"

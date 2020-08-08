@@ -59,6 +59,11 @@ class Apprenant extends User
      */
     private $groupes;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isConnected;
+
     public function __construct()
     {
         parent::__construct();
@@ -94,6 +99,18 @@ class Apprenant extends User
             $this->groupes->removeElement($groupe);
             $groupe->removeApprenant($this);
         }
+
+        return $this;
+    }
+
+    public function getIsConnected(): ?bool
+    {
+        return $this->isConnected;
+    }
+
+    public function setIsConnected(bool $isConnected): self
+    {
+        $this->isConnected = $isConnected;
 
         return $this;
     }

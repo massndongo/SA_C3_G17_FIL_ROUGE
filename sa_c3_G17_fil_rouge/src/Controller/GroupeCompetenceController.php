@@ -76,7 +76,7 @@ class GroupeCompetenceController extends AbstractController
         $competences = [];
         $size = count($groupeCompetence);
         for ($i = 0;$i < $size; $i++){
-            if(!$groupeCompetence[$i]->getIsDeleted()){
+//            if(!$groupeCompetence[$i]->getIsDeleted()){
                 $competence = $groupeCompetence[$i]->getCompetences();
                 $length = count($competence);
                 for ($j = 0; $j < $length; $j++){
@@ -85,7 +85,7 @@ class GroupeCompetenceController extends AbstractController
                         $competences[] = $skill;
                     }
                 }
-            }
+//            }
         }
         return $this->json($competences,Response::HTTP_OK);
     }
