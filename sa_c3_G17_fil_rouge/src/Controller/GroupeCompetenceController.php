@@ -230,22 +230,26 @@ class GroupeCompetenceController extends AbstractController
     private function addComptenceToGroupe($competences,$serializer,$validator,$groupeCompetenceObj,$manager,$competenceRepository)
     {
         foreach ($competences as $comptence){
+            $comptence["niveaux"] = [];
             $skill = $serializer->denormalize($comptence,"App\Entity\Competence");
-            $id = isset($comptence["id"]) ? $comptence["id"] : null;
-            $skill->setId($id);
-            $skill->setIsDeleted(false)
-                ->addGroupeCompetence($groupeCompetenceObj);
-            $error = (array) $validator->validate($skill);
-            if (count($error))
-                return $this->json($error,Response::HTTP_BAD_REQUEST);
-            if($id == null){
-                $manager->persist($skill);
-            }else{
+            $id = isset($comptence["id"]) ? (int)$comptence["id"] : null;
+            if($id)
+            {
                 $skill = $competenceRepository->findOneBy([
                     "id" => $id
                 ]);
+                if(!$skill)
+                    return $this->json(["message" => "La competence avec l'id : $id, n'existe pas."],Response::HTTP_NOT_FOUND);
+                $groupeCompetenceObj->addCompetence($skill);
+            }else{
+                $skill->setId($id);
+                $skill->setIsDeleted(false);
+                $error = (array) $validator->validate($skill);
+                if (count($error))
+                    return $this->json($error,Response::HTTP_BAD_REQUEST);
+                $manager->persist($skill);
+                $groupeCompetenceObj->addCompetence($skill);
             }
-            $groupeCompetenceObj->addCompetence($skill);
         }
         return $groupeCompetenceObj;
     }

@@ -67,7 +67,9 @@ class PromosController extends AbstractController
             foreach ($groupes as $groupe)
             {
                 if (!$groupe->getIsDeleted() && $groupe->getType() == "principal")
+                {
                     $principaux[] = $promo;
+                }
             }
         }
         return $this->json($principaux,Response::HTTP_OK);
@@ -89,7 +91,6 @@ class PromosController extends AbstractController
         $waiting = [];
         foreach ($promos as $promo)
         {
-            $referentiel = $promo->getReferentiel();
             $groupes = $promo->getGroupes();
             foreach ($groupes as $groupe)
             {
@@ -117,7 +118,9 @@ class PromosController extends AbstractController
     {
         $promo = new Promos();
         if (!$this->isGranted("EDIT",$promo))
+        {
             return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
+        }
         $promoJson = $request->getContent();
         $sender = 'terangawebdevelopment@gmail.com';
         $promoTab = $this->serializer->decode($promoJson,"json");
@@ -166,7 +169,12 @@ class PromosController extends AbstractController
                 $message = (new \Swift_Message("Ajout apprenant au promo"))
                             ->setFrom($sender)
                             ->setTo($email["email"])
-                            ->setBody("Vous avez été ajouté au promo");
+                            ->setBody(
+                                $this->renderView(
+                                    "emails/congratulation.html.twig",["nothing"]
+                                ),
+                                "text/html"
+                            );
                 $mailerStatus = $mailer->send($message);
             }
             $unitErrors = $this->validator->validate($unit);
