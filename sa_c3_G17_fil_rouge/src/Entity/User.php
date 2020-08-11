@@ -87,16 +87,6 @@ class User implements UserInterface
      */
     private $email;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Promos::class, mappedBy="user")
-     */
-    private $promos;
-
-    public function __construct()
-    {
-        $this->promos = new ArrayCollection();
-    }
-
     public function getId(): ?int
     {
         return $this->id;
@@ -239,34 +229,5 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return Collection|Promos[]
-     */
-    public function getPromos(): Collection
-    {
-        return $this->promos;
-    }
-
-    public function addPromos(Promos $promo): self
-    {
-        if (!$this->promos->contains($promo)) {
-            $this->promos[] = $promo;
-            $promo->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removePromos(Promos $promo): self
-    {
-        if ($this->promos->contains($promo)) {
-            $this->promos->removeElement($promo);
-            // set the owning side to null (unless already changed)
-            if ($promo->getUser() === $this) {
-                $promo->setUser(null);
-            }
-        }
-
-        return $this;
-    }
+   
 }

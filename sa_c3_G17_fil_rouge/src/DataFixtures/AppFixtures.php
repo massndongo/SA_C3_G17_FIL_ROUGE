@@ -2,18 +2,20 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\Admin;
-use App\Entity\Apprenant;
 use App\Entity\CM;
-use App\Entity\Formateur;
-use App\Entity\Profil;
+use Faker\Factory;
 use App\Entity\Role;
 use App\Entity\User;
+use App\Entity\Admin;
+use App\Entity\Profil;
+use App\Entity\Apprenant;
+use App\Entity\GroupeCompetence;
+use App\Entity\Formateur;
+use App\Entity\Referentiel;
 use App\Repository\ProfilRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
-use Doctrine\ORM\EntityManagerInterface;
-use Faker\Factory;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class AppFixtures extends Fixture
@@ -27,7 +29,7 @@ class AppFixtures extends Fixture
     }
 
     public function load(ObjectManager $manager)
-    {
+    /*{
        $faker = Factory::create();
 //        $profils = [
 //            "ADMIN",
@@ -64,5 +66,28 @@ class AppFixtures extends Fixture
             }
         }
         $manager->flush();
-    }
+    }*/
+    {
+        $faker = Factory::create();
+ //        $profils = [
+ //            "ADMIN",
+ //            "APPRENANT",
+ //            "FORMATEUR"
+ //        ];
+         $profils = $this->profilRepository->findAll();
+         $times = 10;
+         for ($i = 0; $i < $times; $i++){
+ //            $profil = new Profil();
+ //            $profil->setLibelle($libelle);
+                 $entity = new Referentiel();
+                 $entity->setLibelle('Libelle '.$i)
+                     ->setPresentation('Presentation '.$i)
+                     ->setProgramme('Programme '.$i)
+                     ->setCritereAdmission('CritereAdmission '.$i)
+                     ->setCritereEvaluation('CritereEvaluation '.$i)
+                     ->setIsDeleted(false);
+                 $manager->persist($entity);
+         }
+         $manager->flush();
+     }
 }

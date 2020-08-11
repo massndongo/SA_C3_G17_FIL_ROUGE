@@ -2,11 +2,10 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\ReferentielRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ReferentielRepository;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -56,12 +55,15 @@ class Referentiel
     private $critereEvaluation;
 
     /**
-     * @ORM\ManyToMany(targetEntity=groupeCompetence::class, inversedBy="referentiels")
+     * @ORM\ManyToMany(targetEntity=GroupeCompetence::class, inversedBy="referentiels",cascade={"persist"})
+     * @Groups("ref:read")
+     * @Assert\NotBlank(message="Le username est obligatoire")
      */
     private $groupeCompetence;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups("ref:read")
      */
     private $isDeleted;
 
@@ -79,6 +81,11 @@ class Referentiel
     public function getId(): ?int
     {
         return $this->id;
+    }
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
     }
 
     public function getLibelle(): ?string
@@ -105,12 +112,12 @@ class Referentiel
         return $this;
     }
 
-    public function getProgramme(): ?string
+    public function getProgramme()
     {
         return $this->programme;
     }
 
-    public function setProgramme(string $programme): self
+    public function setProgramme($programme): self
     {
         $this->programme = $programme;
 
@@ -153,6 +160,7 @@ class Referentiel
     {
         if (!$this->groupeCompetence->contains($groupeCompetence)) {
             $this->groupeCompetence[] = $groupeCompetence;
+            $groupeCompetence->addReferentiel($this);
         }
 
         return $this;
@@ -162,6 +170,7 @@ class Referentiel
     {
         if ($this->groupeCompetence->contains($groupeCompetence)) {
             $this->groupeCompetence->removeElement($groupeCompetence);
+            $groupeCompetence->removeReferentiel($this);
         }
 
         return $this;
