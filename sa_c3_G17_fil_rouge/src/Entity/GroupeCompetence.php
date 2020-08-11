@@ -71,22 +71,19 @@ class GroupeCompetence
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()
-     * @Groups({"grpecompetence:read_m"})
+     * @Groups({"grpecompetence:read_m","ref:read"})  
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()
-     * @Groups({"grpecompetence:read_m"})
+     * @Groups({"grpecompetence:read_m","ref:read"})
      */
     private $descriptif;
 
     /**
      * @ORM\ManyToOne(targetEntity=Admin::class, inversedBy="groupeCompetences")
      * @ORM\JoinColumn(nullable=false)
-     * @Assert\NotBlank()
      *
      */
     private $administrateur;
@@ -104,7 +101,7 @@ class GroupeCompetence
     private $isDeleted;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Referentiel::class, mappedBy="groupeCompetence")
+     * @ORM\ManyToMany(targetEntity=Referentiel::class, mappedBy="groupeCompetence",cascade={"persist"})
      */
     private $referentiels;
 
@@ -213,7 +210,6 @@ class GroupeCompetence
     {
         if (!$this->referentiels->contains($referentiel)) {
             $this->referentiels[] = $referentiel;
-            $referentiel->addGroupeCompetence($this);
         }
 
         return $this;
