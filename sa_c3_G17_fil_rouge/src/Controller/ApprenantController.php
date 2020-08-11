@@ -1,10 +1,14 @@
 <?php
 
 namespace App\Controller;
+use App\Entity\Apprenant;
 use App\Entity\User;
+use App\Repository\ApprenantRepository;
+use App\Repository\ProfilRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,18 +24,16 @@ class ApprenantController extends AbstractController
      *     methods={"GET"},
      *     defaults={
      *          "__controller"="App\Controller\ApprenantController::getApprenants",
-     *          "__api_resource_class"=User::class,
+     *          "__api_resource_class"=Apprenant::class,
      *          "__api_collection_operation_name"="get_students"
      *     }
      * )
      */
-    public function getApprenants(UserRepository $userRepository)
+    public function getApprenants(ApprenantRepository $apprenantRepository)
     {
-        $studens_profil = $userRepository->findOneBy([
-            "id" => 2
-        ]);
-        $studens = $userRepository->findBy([
-            "profil" => $studens_profil
+
+        $studens = $apprenantRepository->findBy([
+            "isDeleted" => false
         ]);
         return $this->json($studens,Response::HTTP_OK);
     }
@@ -41,37 +43,38 @@ class ApprenantController extends AbstractController
      *     methods={"POST"},
      *     defaults={
      *          "__controller"="App\Controller\ApprenantController::getApprenants",
-     *          "__api_resource_class"=User::class,
+     *          "__api_resource_class"=Apprenant::class,
      *          "__api_collection_operation_name"="add_student"
      *     }
      * )
      */
-    public function addStudents(Request $request,SerializerInterface $serializer,UserPasswordEncoderInterface $encoder,EntityManagerInterface $manager,ValidatorInterface $validator,UserRepository $userRepository)
+    public function addStudents(Request $request,SerializerInterface $serializer,UserPasswordEncoderInterface $encoder,EntityManagerInterface $manager,ValidatorInterface $validator,ProfilRepository $profilRepository)
     {
-        $student_profil = $userRepository->findOneBy([
-            "id" => 2
+        $opened = false;
+        $profil = $profilRepository->findOneBy([
+            "libelle" => "APPRENANT"
         ]);
         $student = $request->request->all();
         $avatar = $request->files->get("avatar");
-        $avatar = fopen($avatar->getRealPath(),"rb");
-        $student["avatar"] = $avatar;
-        $student = $serializer->denormalize($student,"App\Entity\User");
+        if($avatar){
+            $avatar = fopen($avatar->getRealPath(),"rb");
+            $student["avatar"] = $avatar;
+            $opened = true;
+        }
+        $student = $serializer->denormalize($student,"App\Entity\Apprenant");
         $errors = $validator->validate($student);
         if (count($errors)){
-            $errors = $serializer->serialize($errors,"json");
-            return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
-        }else if($student->getProfil()->getId() != $student_profil->getId()){
-            $errors = [
-                "message" => "Veuillez choisir le profil apprenant"
-            ];
             $errors = $serializer->serialize($errors,"json");
             return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
         }
         $password = $student->getPassword();
         $student->setPassword($encoder->encodePassword($student,$password));
+        $student->setProfil($profil)
+                ->setIsDeleted(false);
         $manager->persist($student);
         $manager->flush();
-        fclose($avatar);
+        if ($opened)
+            fclose($avatar);
         return $this->json($student,Response::HTTP_CREATED);
     }
 
@@ -81,15 +84,14 @@ class ApprenantController extends AbstractController
      *     methods={"GET"},
      *     defaults={
      *          "__controller"="App\Controller\ApprenantController::getStudent",
-     *          "__api_resource_class"=User::class,
+     *          "__api_resource_class"=Apprenant::class,
      *          "__api_collection_operation_name"="get_student"
      *     }
      * )
      */
     public function getStudent(User $student)
     {
-        $idStudentProfil = 2;
-        if($student->getProfil()->getId() == $idStudentProfil){
+        if($student->getRoles()[0] == "ROLE_APPRENANT"){
             return $this->json($student,Response::HTTP_OK);
         }else{
             return $this->json(["message" => "Vous n'avez pas acces à cette ressource"],Response::HTTP_FORBIDDEN);
@@ -102,45 +104,16 @@ class ApprenantController extends AbstractController
      *     methods={"PUT"},
      *     defaults={
      *          "__controller"="App\Controller\ApprenantController::setStudent",
-     *          "__api_resource_class"=User::class,
+     *          "__api_resource_class"=Apprenant::class,
      *          "__api_collection_operation_name"="set_student"
      *     }
      * )
      */
-    public function setStudent(User $set_student,EntityManagerInterface $manager,Request $request,UserRepository $userRepository,SerializerInterface $serializer,ValidatorInterface $validator,UserPasswordEncoderInterface $encoder)
+    public function setStudent(User $student,EntityManagerInterface $manager,Request $request,UserRepository $userRepository,SerializerInterface $serializer,ValidatorInterface $validator,UserPasswordEncoderInterface $encoder)
     {
-        $student_profil = $userRepository->findOneBy([
-            "id" => 2
-        ]);
-        $student = $request->request->all();
-        $avatar = $request->files->get("avatar");
-        $avatar = fopen($avatar->getRealPath(),"rb");
-        $student["avatar"] = $avatar;
-        $student = $serializer->denormalize($student,"App\Entity\User");
-        $errors = $validator->validate($student);
-        if (count($errors)){
-            $errors = $serializer->serialize($errors,"json");
-            return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
-        }else if($student->getProfil()->getId() != $student_profil->getId()){
-            $errors = [
-                "message" => "Veuillez choisir le profil apprenant"
-            ];
-            $errors = $serializer->serialize($errors,"json");
-            return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
+        if($student->getRoles()[0] == "ROLE_APPRENANT"){
         }
-        $password = $student->getPassword();
-        $student->setPassword($encoder->encodePassword($student,$password));
-        if($student->getPassword() != $set_student->getPassword()){
-            $set_student->setPassword($student->getPassword());
-        }
-        if($student->getUsername() != $set_student->getUsername()){
-            $set_student->setUsername($student->getUsername());
-        }
-        if($student->getAvatar() != $set_student->getAvatar()){
-            $set_student->setAvatar($student->getAvatar());
-        }
-        $manager->flush();
-        fclose($avatar);
-        return $this->json($student,Response::HTTP_CREATED);
+        return $this->json(["message" => "Vous n'avez pas acces à cette ressource"],Response::HTTP_FORBIDDEN);
+
     }
 }

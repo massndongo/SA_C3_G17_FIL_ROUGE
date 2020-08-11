@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../../api/.idea/api.iml" filepath="$PROJECT_DIR$/../../api/.idea/api.iml" />
+      <module fileurl="file:///media/souhaibou/a089f037-880e-415f-9ef6-de232fa29248/souhaibou/courses/workspace/Symfony/api/.idea/api.iml" filepath="/media/souhaibou/a089f037-880e-415f-9ef6-de232fa29248/souhaibou/courses/workspace/Symfony/api/.idea/api.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/sa_c3_G17_fil_rouge.iml" filepath="$PROJECT_DIR$/.idea/sa_c3_G17_fil_rouge.iml" />
     </modules>
   </component>
