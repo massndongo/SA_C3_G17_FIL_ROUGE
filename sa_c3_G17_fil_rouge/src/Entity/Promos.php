@@ -17,20 +17,61 @@ use Symfony\Component\Validator\Constraints as Assert;
  *          "get_promos" = {
  *              "method"="GET",
  *              "path"="/admin/promos",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
  *           },
  *          "get_principal" = {
  *              "method"="GET",
  *              "path"="/admin/promos/principal",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
  *           },
  *          "get_attente" = {
  *              "method"="GET",
  *              "path"="/admin/promos/apprenants/attente",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
  *           },
  *          "add_promo" = {
  *              "method"="POST",
  *              "path"="/admin/promos",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
  *           }
- *     }
+ *     },
+ *     itemOperations={
+ *          "get_promo" = {
+ *              "method"="GET",
+ *              "path"="/admin/promos/{id}",
+ *              "security"="is_granted('VIEW',object)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *           },
+ *          "get_principal" = {
+ *              "method"="GET",
+ *              "path"="/admin/promos/{id}/principal    ",
+ *              "security"="is_granted('VIEW',object)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *           },
+ *          "set_promo" = {
+ *              "method" = "PUT",
+ *              "path" = "admin/promos/{id}",
+ *              "requirements"={"id"="\d+"},
+ *              "security"="is_granted('SET',object)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "setFormateur" = {
+ *              "method" = "PUT",
+ *              "path" = "/admin/promos/{id}/formateurs",
+ *              "security"="is_granted('SET',object)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "setStatutGroupe" = {
+ *              "method" = "PUT",
+ *              "path" = "/admin/promos/{idPromo}/groupes/{idGroupe}",
+ *              "security"="is_granted('SET',object)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          }
+ *     },
  * )
  * @ORM\Entity(repositoryClass=PromosRepository::class)
  */
@@ -98,6 +139,9 @@ class Promos
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"promos:read"})
+     * @Assert\NotBlank(
+     *     message="La fabrique est obligatoire"
+     * )
      */
     private $fabrique;
 
@@ -132,7 +176,7 @@ class Promos
     private $groupes;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean",nullable=true)
      */
     private $isDeleted;
 

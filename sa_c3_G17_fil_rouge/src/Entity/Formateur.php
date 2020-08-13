@@ -38,6 +38,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     }
  * )
  * @ORM\Entity(repositoryClass=FormateurRepository::class)
+ *
  */
 class Formateur extends User
 {

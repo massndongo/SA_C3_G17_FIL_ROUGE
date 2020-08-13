@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiSubresource;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
@@ -32,7 +30,8 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank(message="Le username est obligatoire")
-     *@Groups({"user:read","promos:read"})
+     * @Groups({"user:read","promos:read"})
+     *
      */
     protected $username;
 
@@ -51,7 +50,7 @@ class User implements UserInterface
     protected $password;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Profil::class, inversedBy="user")
+     * @ORM\ManyToOne(targetEntity=Profil::class, inversedBy="users")
      * @ORM\JoinColumn(nullable=false)
      * @ApiSubresource()
      * @Groups({"user:read"})
@@ -72,18 +71,24 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"user:read","promos:read"})
+     * @Assert\NotBlank(message="Le prenom est obligatoire")
      */
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"user:read","promos:read"})
+     * @Assert\NotBlank(message="Le nom est obligatoire")
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      * @Groups({"user:read","promos:read"})
+     * @Assert\NotBlank(message="L'email est obligatoire")
+     * @Assert\Email(
+     *     message="Veuillez saisir un email valide."
+     * )
      */
     private $email;
 

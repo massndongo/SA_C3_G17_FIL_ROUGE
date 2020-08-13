@@ -65,7 +65,7 @@ class Groupes
     private $apprenant;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean",nullable=true)
      */
     private $isDeleted;
 
