@@ -2,14 +2,55 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\GroupeTagRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\GroupeTagRepository;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ * 
+ *     normalizationContext={"groups"={"grpetags:read_m"}},
+ *     collectionOperations={
+ *          "get_grpeTags"={
+ *              "method" = "GET",
+ *              "path" = "/admin/grptags",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "add_groupeTag"={
+ *              "method" = "POST",
+ *              "path" = "/admin/grptags",
+ *              "security_post_denormalize"="is_granted('ROLE_FORMATEUR')",
+ *              "security_post_denormalize_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *     },
+ *     itemOperations={
+ *          "get_groupeTag"={
+ *              "method" = "GET",
+ *              "path" = "/admin/grptags/{id}",
+ *              "requirements"={"id"="\d+"},
+ *              "security"="is_granted('VIEW',object)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "get_tag_in_groupeTag"={
+ *              "method" = "GET",
+ *              "path" = "/admin/grptags/{id}/tags",
+ *              "requirements"={"id"="\d+"},
+ *              "security"="is_granted('VIEW',object)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "set_groupeTag"={
+ *              "method" = "PUT",
+ *              "path" = "/admin/grptags/{id}",
+ *              "requirements"={"id"="\d+"},
+ *              "security"="is_granted('SET',object)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *     }
+ * )
  * @ORM\Entity(repositoryClass=GroupeTagRepository::class)
  */
 class GroupeTag
@@ -18,16 +59,19 @@ class GroupeTag
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"grpetags:read_m"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"grpetags:read_m"})
      */
     private $libelle;
 
     /**
      * @ORM\ManyToMany(targetEntity=Tag::class, inversedBy="groupeTags")
+     * @Groups({"grpetags:read_m"})
      */
     private $tags;
 

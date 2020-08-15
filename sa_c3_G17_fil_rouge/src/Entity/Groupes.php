@@ -7,9 +7,12 @@ use App\Repository\GroupesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     normalizationContext={"groups"="group:read"},
+ * )
  * @ORM\Entity(repositoryClass=GroupesRepository::class)
  */
 class Groupes
@@ -18,26 +21,31 @@ class Groupes
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"promos:read","group:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"promos:read","group:read"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="date")
+     * @Groups({"promos:read","group:read"})
      */
     private $dateCreation;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"promos:read","group:read"})
      */
     private $statut;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"promos:read","group:read"})
      */
     private $type;
 
@@ -55,6 +63,11 @@ class Groupes
      * @ORM\ManyToMany(targetEntity=Apprenant::class, inversedBy="groupes")
      */
     private $apprenant;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isDeleted;
 
     public function __construct()
     {
@@ -175,6 +188,18 @@ class Groupes
         if ($this->apprenant->contains($apprenant)) {
             $this->apprenant->removeElement($apprenant);
         }
+
+        return $this;
+    }
+
+    public function getIsDeleted(): ?bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setIsDeleted(bool $isDeleted): self
+    {
+        $this->isDeleted = $isDeleted;
 
         return $this;
     }

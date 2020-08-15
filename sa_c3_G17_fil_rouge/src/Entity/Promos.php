@@ -7,9 +7,31 @@ use App\Repository\PromosRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     normalizationContext={"groups"={"promos:read"}},
+ *     collectionOperations={
+ *          "get_promos" = {
+ *              "method"="GET",
+ *              "path"="/admin/promos",
+ *           },
+ *          "get_principal" = {
+ *              "method"="GET",
+ *              "path"="/admin/promos/principal",
+ *           },
+ *          "get_attente" = {
+ *              "method"="GET",
+ *              "path"="/admin/promos/apprenants/attente",
+ *           },
+ *          "add_promo" = {
+ *              "method"="POST",
+ *              "path"="/admin/promos",
+ *           }
+ *     }
+ * )
  * @ORM\Entity(repositoryClass=PromosRepository::class)
  */
 class Promos
@@ -18,66 +40,94 @@ class Promos
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"promos:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(
+     *     message="Le choix de la langue est obligatoire"
+     * )
+     * @Groups({"promos:read"})
      */
     private $langue;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(
+     *     message="Le titre est obligatoire"
+     * )
+     * @Groups({"promos:read"})
      */
     private $titre;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(
+     *     message="La description de la promo est obligatoire"
+     * )
+     * @Groups({"promos:read"})
      */
     private $description;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255,nullable=true)
+     * @Groups({"promos:read"})
      */
     private $lieu;
 
     /**
      * @ORM\Column(type="date")
+     * @Assert\NotBlank(
+     *     message="La date de début est obligatoire"
+     * )
+     * @Groups({"promos:read"})
      */
     private $dateDebut;
 
     /**
      * @ORM\Column(type="date")
+     * @Assert\NotBlank(
+     *     message="La date de fin est obligatoire"
+     * )
+     * @Groups({"promos:read"})
      */
     private $dateFinProvisoire;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"promos:read"})
      */
     private $fabrique;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="date",nullable=true)
      */
     private $dateFinReelle;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $etat;
 
     /**
      * @ORM\ManyToOne(targetEntity=Referentiel::class, inversedBy="promos")
+     * @Assert\NotBlank(
+     *     message="Le choix du referentiel est obligatoire"
+     * )
+     * @Groups({"promos:read"})
      */
     private $referentiel;
 
     /**
      * @ORM\ManyToMany(targetEntity=Formateur::class, inversedBy="promos")
+     * @Groups({"promos:read"})
      */
     private $formateur;
 
     /**
      * @ORM\OneToMany(targetEntity=Groupes::class, mappedBy="promos")
+     * @Assert\NotBlank(
+     *     message="Le choix des groupes est obligatoire"
+     * )
+     * @Groups({"promos:read"})
      */
     private $groupes;
 
@@ -88,8 +138,15 @@ class Promos
 
     /**
      * @ORM\ManyToOne(targetEntity=Admin::class, inversedBy="promos")
+     * @Groups({"promos:read"})
      */
     private $admin;
+
+    /**
+     * @ORM\Column(type="boolean")
+     * @Groups({"promos:read"})
+     */
+    private $etat;
 
     public function __construct()
     {
@@ -100,6 +157,12 @@ class Promos
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
     }
 
     public function getLangue(): ?string
@@ -198,18 +261,6 @@ class Promos
         return $this;
     }
 
-    public function getEtat(): ?string
-    {
-        return $this->etat;
-    }
-
-    public function setEtat(string $etat): self
-    {
-        $this->etat = $etat;
-
-        return $this;
-    }
-
     public function getReferentiel(): ?Referentiel
     {
         return $this->referentiel;
@@ -299,6 +350,18 @@ class Promos
     public function setAdmin(?Admin $admin): self
     {
         $this->admin = $admin;
+
+        return $this;
+    }
+
+    public function getEtat(): ?bool
+    {
+        return $this->etat;
+    }
+
+    public function setEtat(bool $etat): self
+    {
+        $this->etat = $etat;
 
         return $this;
     }

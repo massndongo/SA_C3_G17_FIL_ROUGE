@@ -2,14 +2,45 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\TagRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\TagRepository;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     normalizationContext={"groups"={"tag:read"}},
+ *     collectionOperations={
+ *          "get"={
+ *              "path" = "/admin/tags",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "post"={
+ *              "security_post_denormalize"="is_granted('ROLE_FORMATEUR')",
+ *              "security_post_denormalize_message"="Vous n'avez pas access à cette Ressource",
+ *              "path" = "/admin/tags",
+
+ *          },
+ *     },
+ *     itemOperations={
+ *          "get"={
+ *              "path" = "/admin/tags/{id}",
+ *              "requirements"={"id"="\d+"},
+ *              "security"="is_granted('ROLE_FORMATEUR)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "set_competence"={
+ *              "method" = "PUT",
+ *              "path" = "/admin/tags/{id}",
+ *              "requirements"={"id"="\d+"},
+ *              "security"="is_granted('ROLE_FORMATEUR)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *     }
+ * )
  * @ORM\Entity(repositoryClass=TagRepository::class)
  */
 class Tag
@@ -18,21 +49,25 @@ class Tag
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"grpetags:read_m,tag:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"grpetags:read_m,tag:read"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"grpetags:read_m,tag:read"})
      */
     private $descriptif;
 
     /**
      * @ORM\ManyToMany(targetEntity=GroupeTag::class, mappedBy="tags")
+     * @Groups({"grpetags:read_m"})
      */
     private $groupeTags;
 

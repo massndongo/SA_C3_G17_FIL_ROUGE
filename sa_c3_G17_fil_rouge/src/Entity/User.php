@@ -25,14 +25,14 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"user:read"})
+     * @Groups({"user:read","promos:read"})
      */
     protected $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank(message="Le username est obligatoire")
-     *@Groups({"user:read"})
+     *@Groups({"user:read","promos:read"})
      */
     protected $username;
 
@@ -51,7 +51,7 @@ class User implements UserInterface
     protected $password;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Profil::class, inversedBy="user")
+     * @ORM\ManyToOne(targetEntity=Profil::class, inversedBy="users")
      * @ORM\JoinColumn(nullable=false)
      * @ApiSubresource()
      * @Groups({"user:read"})
@@ -71,19 +71,19 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"user:read"})
+     * @Groups({"user:read","promos:read"})
      */
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"user:read"})
+     * @Groups({"user:read","promos:read"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
-     * @Groups({"user:read"})
+     * @Groups({"user:read","promos:read"})
      */
     private $email;
 
