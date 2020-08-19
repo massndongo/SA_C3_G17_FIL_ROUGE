@@ -32,7 +32,8 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank(message="Le username est obligatoire")
-     *@Groups({"user:read","promos:read"})
+     * @Groups({"user:read","promos:read"})
+     *
      */
     protected $username;
 
@@ -72,20 +73,36 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"user:read","promos:read"})
+     * @Assert\NotBlank(message="Le prenom est obligatoire")
      */
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"user:read","promos:read"})
+     * @Assert\NotBlank(message="Le nom est obligatoire")
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      * @Groups({"user:read","promos:read"})
+     * @Assert\NotBlank(message="L'email est obligatoire")
+     * @Assert\Email(
+     *     message="Veuillez saisir un email valide."
+     * )
      */
     private $email;
+
+    /**
+     * @ORM\OneToMany(targetEntity=CommentaireGeneral::class, mappedBy="user")
+     */
+    private $commentaireGenerals;
+
+    public function __construct()
+    {
+        $this->commentaireGenerals = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -225,6 +242,37 @@ class User implements UserInterface
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CommentaireGeneral[]
+     */
+    public function getCommentaireGenerals(): Collection
+    {
+        return $this->commentaireGenerals;
+    }
+
+    public function addCommentaireGeneral(CommentaireGeneral $commentaireGeneral): self
+    {
+        if (!$this->commentaireGenerals->contains($commentaireGeneral)) {
+            $this->commentaireGenerals[] = $commentaireGeneral;
+            $commentaireGeneral->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentaireGeneral(CommentaireGeneral $commentaireGeneral): self
+    {
+        if ($this->commentaireGenerals->contains($commentaireGeneral)) {
+            $this->commentaireGenerals->removeElement($commentaireGeneral);
+            // set the owning side to null (unless already changed)
+            if ($commentaireGeneral->getUser() === $this) {
+                $commentaireGeneral->setUser(null);
+            }
+        }
 
         return $this;
     }

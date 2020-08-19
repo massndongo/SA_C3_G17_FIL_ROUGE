@@ -3,69 +3,17 @@
 namespace App\Entity;
 
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ReferentielRepository;
 use Doctrine\Common\Collections\Collection;
-use ApiPlatform\Core\Annotation\ApiResource;
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
- *      
- *     normalizationContext={"groups"={"ref:read"}},
- *     collectionOperations={
- *          "get_referentiel"={
- *              "method" = "GET",
- *              "path" = "/admin/referentiels",
- *              "normalization_context"={"groups"={"ref:read"}},
- *              "security"="is_granted('VIEW',object)",
- *              "security_message"="Vous n'avez pas access à cette Ressource",
- *          },
- *          "get_grpecompetences"={
- *              "method" = "GET",
- *              "path" = "/admin/referentiels/grpecompetences",
- *              "access_control"="is_granted('VIEW',object)",
- *              "access_control_message"="Vous n'avez pas access à cette Ressource",
- *          },
- *          "add_referentiel"={
- *              "method" = "POST",
- *              "path" = "/admin/referentiels",
- *              "security_post_denormalize"="is_granted('EDIT',object)",
- *              "security_post_denormalize_message"="Vous n'avez pas access à cette Ressource",
- *          },
- *     },
- *     itemOperations={
- *          "get_referentiel"={
- *              "method" = "GET",
- *              "path" = "/admin/referentiels/{id}",
- *              "requirements"={"id"="\d+"},
- *              "security"="(is_granted('ROLE_FORMATEUR') or is_granted('ROLE_APPRENANT') or is_granted('ROLE_CM'))",
- *              "security_message"="Vous n'avez pas access à cette Ressource",
- *          },
- *          "get_grpecompetence_in_referentiel"={
- *              "method" = "GET",
- *              "path" = "/admin/referentiels/{id}/grpecompetences",
- *              "requirements"={"id"="\d+"},
- *              "security"="(is_granted('ROLE_FORMATEUR') or is_granted('ROLE_APPRENANT') or is_granted('ROLE_CM'))",
- *              "security_message"="Vous n'avez pas access à cette Ressource",
- *          },
- *          "set_referentiel"={
- *              "method" = "PUT",
- *              "path" = "/admin/referentiels/{id}",
- *              "requirements"={"id"="\d+"},
- *              "security"="(is_granted('ROLE_FORMATEUR') or is_granted('ROLE_APPRENANT') or is_granted('ROLE_CM'))",
- *              "security_message"="Vous n'avez pas access à cette Ressource",
- *          },
- *  *          "del_referentiel"={
- *              "method" = "DELETE",
- *              "path" = "/admin/referentiels/{id}",
- *              "requirements"={"id"="\d+"},
- *              "security_post_denormalize"="is_granted('DEL',object)",
- *              "security_post_denormalize_message"="Vous n'avez pas access à cette Ressource",
- *          }
- *     }
+ *     normalizationContext={"groups"={"referentiel:read"}},
  * )
  * @ORM\Entity(repositoryClass=ReferentielRepository::class)
  */
@@ -75,41 +23,37 @@ class Referentiel
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups("ref:read")
+     * @Groups({"promos:read","referentiel:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("ref:read")
-     * @Assert\NotBlank(message="Le username est obligatoire")
+     * @Groups({"promos:read","referentiel:read"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("ref:read")
-     * @Assert\NotBlank(message="Le username est obligatoire")
+     * @Groups({"promos:read","referentiel:read"})
      */
     private $presentation;
 
     /**
-     * @ORM\Column(type="blob", nullable=true)
-     * @Assert\NotBlank(message="Le username est obligatoire")
+     * @ORM\Column(type="string", length=255)
+     * @Groups({"promos:read","referentiel:read"})
      */
     private $programme;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("ref:read")
-     * @Assert\NotBlank(message="Le username est obligatoire")
+     * @Groups({"promos:read","referentiel:read"})
      */
     private $critereAdmission;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("ref:read")
-     * @Assert\NotBlank(message="Le username est obligatoire")
+     * @Groups({"promos:read","referentiel:read"})
      */
     private $critereEvaluation;
 
@@ -131,10 +75,22 @@ class Referentiel
      */
     private $promos;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Brief::class, mappedBy="referentiel")
+     */
+    private $briefs;
+
+    /**
+     * @ORM\OneToMany(targetEntity=StatistiquesCompetences::class, mappedBy="referentiel")
+     */
+    private $statistiquesCompetences;
+
     public function __construct()
     {
         $this->groupeCompetence = new ArrayCollection();
         $this->promos = new ArrayCollection();
+        $this->briefs = new ArrayCollection();
+        $this->statistiquesCompetences = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -272,6 +228,68 @@ class Referentiel
             // set the owning side to null (unless already changed)
             if ($promo->getReferentiel() === $this) {
                 $promo->setReferentiel(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Brief[]
+     */
+    public function getBriefs(): Collection
+    {
+        return $this->briefs;
+    }
+
+    public function addBrief(Brief $brief): self
+    {
+        if (!$this->briefs->contains($brief)) {
+            $this->briefs[] = $brief;
+            $brief->setReferentiel($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBrief(Brief $brief): self
+    {
+        if ($this->briefs->contains($brief)) {
+            $this->briefs->removeElement($brief);
+            // set the owning side to null (unless already changed)
+            if ($brief->getReferentiel() === $this) {
+                $brief->setReferentiel(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|StatistiquesCompetences[]
+     */
+    public function getStatistiquesCompetences(): Collection
+    {
+        return $this->statistiquesCompetences;
+    }
+
+    public function addStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if (!$this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences[] = $statistiquesCompetence;
+            $statistiquesCompetence->setReferentiel($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if ($this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences->removeElement($statistiquesCompetence);
+            // set the owning side to null (unless already changed)
+            if ($statistiquesCompetence->getReferentiel() === $this) {
+                $statistiquesCompetence->setReferentiel(null);
             }
         }
 

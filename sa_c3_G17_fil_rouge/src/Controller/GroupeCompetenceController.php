@@ -242,7 +242,6 @@ class GroupeCompetenceController extends AbstractController
                     return $this->json(["message" => "La competence avec l'id : $id, n'existe pas."],Response::HTTP_NOT_FOUND);
                 $groupeCompetenceObj->addCompetence($skill);
             }else{
-                $skill->setId($id);
                 $skill->setIsDeleted(false);
                 $error = (array) $validator->validate($skill);
                 if (count($error))

@@ -17,20 +17,61 @@ use Symfony\Component\Validator\Constraints as Assert;
  *          "get_promos" = {
  *              "method"="GET",
  *              "path"="/admin/promos",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
  *           },
  *          "get_principal" = {
  *              "method"="GET",
  *              "path"="/admin/promos/principal",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
  *           },
  *          "get_attente" = {
  *              "method"="GET",
  *              "path"="/admin/promos/apprenants/attente",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
  *           },
  *          "add_promo" = {
  *              "method"="POST",
  *              "path"="/admin/promos",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
  *           }
- *     }
+ *     },
+ *     itemOperations={
+ *          "get_promo" = {
+ *              "method"="GET",
+ *              "path"="/admin/promos/{id}",
+ *              "security"="is_granted('VIEW',object)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *           },
+ *          "get_principal" = {
+ *              "method"="GET",
+ *              "path"="/admin/promos/{id}/principal    ",
+ *              "security"="is_granted('VIEW',object)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *           },
+ *          "set_promo" = {
+ *              "method" = "PUT",
+ *              "path" = "admin/promos/{id}",
+ *              "requirements"={"id"="\d+"},
+ *              "security"="is_granted('SET',object)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "setFormateur" = {
+ *              "method" = "PUT",
+ *              "path" = "/admin/promos/{id}/formateurs",
+ *              "security"="is_granted('SET',object)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "setStatutGroupe" = {
+ *              "method" = "PUT",
+ *              "path" = "/admin/promos/{idPromo}/groupes/{idGroupe}",
+ *              "security"="is_granted('SET',object)",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          }
+ *     },
  * )
  * @ORM\Entity(repositoryClass=PromosRepository::class)
  */
@@ -98,6 +139,9 @@ class Promos
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"promos:read"})
+     * @Assert\NotBlank(
+     *     message="La fabrique est obligatoire"
+     * )
      */
     private $fabrique;
 
@@ -132,7 +176,7 @@ class Promos
     private $groupes;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean",nullable=true)
      */
     private $isDeleted;
 
@@ -148,10 +192,22 @@ class Promos
      */
     private $etat;
 
+    /**
+     * @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="promo")
+     */
+    private $promoBriefs;
+
+    /**
+     * @ORM\OneToMany(targetEntity=StatistiquesCompetences::class, mappedBy="promo")
+     */
+    private $statistiquesCompetences;
+
     public function __construct()
     {
         $this->formateur = new ArrayCollection();
         $this->groupes = new ArrayCollection();
+        $this->promoBriefs = new ArrayCollection();
+        $this->statistiquesCompetences = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -362,6 +418,68 @@ class Promos
     public function setEtat(bool $etat): self
     {
         $this->etat = $etat;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|PromoBrief[]
+     */
+    public function getPromoBriefs(): Collection
+    {
+        return $this->promoBriefs;
+    }
+
+    public function addPromoBrief(PromoBrief $promoBrief): self
+    {
+        if (!$this->promoBriefs->contains($promoBrief)) {
+            $this->promoBriefs[] = $promoBrief;
+            $promoBrief->setPromo($this);
+        }
+
+        return $this;
+    }
+
+    public function removePromoBrief(PromoBrief $promoBrief): self
+    {
+        if ($this->promoBriefs->contains($promoBrief)) {
+            $this->promoBriefs->removeElement($promoBrief);
+            // set the owning side to null (unless already changed)
+            if ($promoBrief->getPromo() === $this) {
+                $promoBrief->setPromo(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|StatistiquesCompetences[]
+     */
+    public function getStatistiquesCompetences(): Collection
+    {
+        return $this->statistiquesCompetences;
+    }
+
+    public function addStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if (!$this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences[] = $statistiquesCompetence;
+            $statistiquesCompetence->setPromo($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if ($this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences->removeElement($statistiquesCompetence);
+            // set the owning side to null (unless already changed)
+            if ($statistiquesCompetence->getPromo() === $this) {
+                $statistiquesCompetence->setPromo(null);
+            }
+        }
 
         return $this;
     }

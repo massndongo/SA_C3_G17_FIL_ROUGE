@@ -26,10 +26,10 @@ class PromosVoter extends Voter
 
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
-            case 'EDIT':
+            case 'EDIT' || 'SET':
                 // logic to determine if the user can EDIT
                 // return true or false
-                return $user->getRoles()[0] === "ROLE_ADMIN";
+                return $user->getRoles()[0] === "ROLE_ADMIN" || $user->getRoles()[0] === "ROLE_FORMATEUR";;
                 break;
             case 'VIEW':
                 return $user->getRoles()[0] === "ROLE_ADMIN" || $user->getRoles()[0] === "ROLE_FORMATEUR";
