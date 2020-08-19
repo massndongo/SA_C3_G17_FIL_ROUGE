@@ -92,6 +92,16 @@ class User implements UserInterface
      */
     private $email;
 
+    /**
+     * @ORM\OneToMany(targetEntity=CommentaireGeneral::class, mappedBy="user")
+     */
+    private $commentaireGenerals;
+
+    public function __construct()
+    {
+        $this->commentaireGenerals = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -230,6 +240,37 @@ class User implements UserInterface
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CommentaireGeneral[]
+     */
+    public function getCommentaireGenerals(): Collection
+    {
+        return $this->commentaireGenerals;
+    }
+
+    public function addCommentaireGeneral(CommentaireGeneral $commentaireGeneral): self
+    {
+        if (!$this->commentaireGenerals->contains($commentaireGeneral)) {
+            $this->commentaireGenerals[] = $commentaireGeneral;
+            $commentaireGeneral->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentaireGeneral(CommentaireGeneral $commentaireGeneral): self
+    {
+        if ($this->commentaireGenerals->contains($commentaireGeneral)) {
+            $this->commentaireGenerals->removeElement($commentaireGeneral);
+            // set the owning side to null (unless already changed)
+            if ($commentaireGeneral->getUser() === $this) {
+                $commentaireGeneral->setUser(null);
+            }
+        }
 
         return $this;
     }
