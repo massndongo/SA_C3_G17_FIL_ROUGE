@@ -6,14 +6,14 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class PromosVoter extends Voter
+class BriefVoter extends Voter
 {
     protected function supports($attribute, $subject)
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, ['EDIT', 'VIEW','DELETE','SET'])
-            && $subject instanceof \App\Entity\Promos;
+        return in_array($attribute, ['EDIT', 'VIEW'])
+            && $subject instanceof \App\Entity\Brief;
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
@@ -26,16 +26,12 @@ class PromosVoter extends Voter
 
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
-            case 'EDIT' || 'SET':
+            case 'EDIT' || 'VIEW':
                 // logic to determine if the user can EDIT
                 // return true or false
                 return $user->getRoles()[0] === "ROLE_ADMIN" || $user->getRoles()[0] === "ROLE_FORMATEUR";
                 break;
-            case 'VIEW':
-                return $user->getRoles()[0] === "ROLE_ADMIN" || $user->getRoles()[0] === "ROLE_FORMATEUR";
-                // logic to determine if the user can VIEW
-                // return true or false
-                break;
+
         }
 
         return false;
