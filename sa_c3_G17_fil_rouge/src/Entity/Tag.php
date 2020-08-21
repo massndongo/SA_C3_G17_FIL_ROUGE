@@ -2,14 +2,43 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\TagRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\TagRepository;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ * attributes={
+ *      "normalization_context"={"groups"={"tag:read"}}
+ * },
+ *  collectionOperations={
+ *      "post"={
+ *          "path"="admin/tags",
+ *          "security"="is_granted('ROLE_FORMATEUR')",
+ *           "security_message"="Vous n'avez pas le droit",
+ *      },
+ *      "get"={
+ *          "path"="admin/tags",
+ *          "security"="is_granted('ROLE_FORMATEUR')",
+ *           "security_message"="Vous n'avez pas le droit",
+ *      }
+ * },
+ * itemOperations={
+ *      "get"={
+ *          "path"="admin/tags/{id}",
+ *          "security"="is_granted('ROLE_FORMATEUR')",
+ *           "security_message"="Vous n'avez pas le droit",
+ *      },
+ *      "put"={
+ *         "path"="admin/tags/{id}" ,
+ *         "security"="is_granted('ROLE_FORMATEUR')",
+ *           "security_message"="Vous n'avez pas le droit",
+ *      }
+ * }
+ * )
  * @ORM\Entity(repositoryClass=TagRepository::class)
  */
 class Tag
@@ -18,21 +47,27 @@ class Tag
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"tag:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"tag:read"})
      */
+    
     private $libelle;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"tag:read"})
      */
     private $descriptif;
 
     /**
      * @ORM\ManyToMany(targetEntity=GroupeTag::class, mappedBy="tags")
+     * @Groups({"tag:read"})
+     * ApiSubresource
      */
     private $groupeTags;
 
