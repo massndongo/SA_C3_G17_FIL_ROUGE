@@ -21,31 +21,31 @@ class Groupes
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"promos:read","group:read"})
+     * @Groups({"promos:read","group:read","brief:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promos:read","group:read"})
+     * @Groups({"promos:read","group:read","brief:read"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="date")
-     * @Groups({"promos:read","group:read"})
+     * @Groups({"promos:read","group:read","brief:read"})
      */
     private $dateCreation;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promos:read","group:read"})
+     * @Groups({"promos:read","group:read","brief:read"})
      */
     private $statut;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promos:read","group:read"})
+     * @Groups({"promos:read","group:read","brief:read"})
      */
     private $type;
 
@@ -61,6 +61,7 @@ class Groupes
 
     /**
      * @ORM\ManyToMany(targetEntity=Apprenant::class, inversedBy="groupes")
+     * @Groups({"brief:read","group:read"})
      */
     private $apprenant;
 

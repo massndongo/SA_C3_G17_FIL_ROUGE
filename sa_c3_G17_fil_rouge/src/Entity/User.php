@@ -9,6 +9,8 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -23,14 +25,14 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"user:read","promos:read"})
+     * @Groups({"user:read","promos:read","brief:read"})
      */
     protected $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank(message="Le username est obligatoire")
-     * @Groups({"user:read","promos:read"})
+     * @Groups({"user:read","promos:read","brief:read"})
      *
      */
     protected $username;
@@ -70,21 +72,21 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"user:read","promos:read"})
+     * @Groups({"user:read","promos:read","brief:read"})
      * @Assert\NotBlank(message="Le prenom est obligatoire")
      */
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"user:read","promos:read"})
+     * @Groups({"user:read","promos:read","brief:read"})
      * @Assert\NotBlank(message="Le nom est obligatoire")
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
-     * @Groups({"user:read","promos:read"})
+     * @Groups({"user:read","promos:read","brief:read"})
      * @Assert\NotBlank(message="L'email est obligatoire")
      * @Assert\Email(
      *     message="Veuillez saisir un email valide."
@@ -150,7 +152,7 @@ class User implements UserInterface
 
     public function setPassword(string $password): self
     {
-        $this->password = $password; //$encoder->encodePassword($this,$password);
+        $this->password = $password;
 
         return $this;
     }

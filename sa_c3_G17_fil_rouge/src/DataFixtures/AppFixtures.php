@@ -74,20 +74,20 @@ class AppFixtures extends Fixture
  //            "APPRENANT",
  //            "FORMATEUR"
  //        ];
-         $profils = $this->profilRepository->findAll();
-         $times = 10;
-         for ($i = 0; $i < $times; $i++){
- //            $profil = new Profil();
- //            $profil->setLibelle($libelle);
-                 $entity = new Referentiel();
-                 $entity->setLibelle('Libelle '.$i)
-                     ->setPresentation('Presentation '.$i)
-                     ->setProgramme('Programme '.$i)
-                     ->setCritereAdmission('CritereAdmission '.$i)
-                     ->setCritereEvaluation('CritereEvaluation '.$i)
-                     ->setIsDeleted(false);
-                 $manager->persist($entity);
-         }
-         $manager->flush();
+//         $profils = $this->profilRepository->findAll();
+//         $times = 10;
+//         for ($i = 0; $i < $times; $i++){
+// //            $profil = new Profil();
+// //            $profil->setLibelle($libelle);
+//                 $entity = new Referentiel();
+//                 $entity->setLibelle('Libelle '.$i)
+//                     ->setPresentation('Presentation '.$i)
+//                     ->setProgramme('Programme '.$i)
+//                     ->setCritereAdmission('CritereAdmission '.$i)
+//                     ->setCritereEvaluation('CritereEvaluation '.$i)
+//                     ->setIsDeleted(false);
+//                 $manager->persist($entity);
+//         }
+//         $manager->flush();
      }
 }

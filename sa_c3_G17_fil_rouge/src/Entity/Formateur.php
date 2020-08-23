@@ -11,7 +11,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
- *     normalizationContext={"groups"={"user:read"}},
  *     itemOperations={
  *          "get_formateur"={
  *              "method"="GET",

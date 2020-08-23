@@ -2,12 +2,16 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\LivrableAttenduRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 /**
+ * @ApiResource()
  * @ORM\Entity(repositoryClass=LivrableAttenduRepository::class)
  */
 class LivrableAttendu
@@ -16,21 +20,26 @@ class LivrableAttendu
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"brief:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"brief:read"})
      */
     private $libelle;
 
     /**
      * @ORM\ManyToMany(targetEntity=Brief::class, inversedBy="livrableAttendus")
+     * @MaxDepth(2)
      */
     private $briefs;
 
     /**
      * @ORM\OneToMany(targetEntity=Livrables::class, mappedBy="livrableAttendu")
+     * @MaxDepth(1)
+     * @Groups({"brief:read"})
      */
     private $livrables;
 

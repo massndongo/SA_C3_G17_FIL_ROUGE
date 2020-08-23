@@ -7,7 +7,9 @@ use App\Repository\CommentaireGeneralRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *
+ * )
  * @ORM\Entity(repositoryClass=CommentaireGeneralRepository::class)
  */
 class CommentaireGeneral
