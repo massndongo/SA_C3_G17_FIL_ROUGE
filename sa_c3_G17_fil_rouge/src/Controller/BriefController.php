@@ -103,7 +103,6 @@ class BriefController extends AbstractController
                 $role = $formateur->getRoles()[0];
                 if($role == "ROLE_FORMATEUR")
                 {
-                    $brouillons = [];
                     $briefs = $formateur->getBriefs();
                     $message = $briefs;
                     $status = Response::HTTP_OK;
@@ -222,5 +221,36 @@ class BriefController extends AbstractController
             }
         }
         return [$briefsValides,Response::HTTP_OK];
+    }
+
+    /**
+     * @Route(
+     *     path="/api/apprenants/promos/{id<\d+>}/briefs",
+     *     methods={"GET"},
+     *     name="getBriefsApprenant"
+     * )
+     */
+    public function getBriefsApprenant($id)
+    {
+        if(!$this->isGranted("VIEW",new Brief()))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        }
+        $promo = $this->promosRepository->findOneBy(["id" => $id]);
+        if ($promo && !$promo->getIsDeleted())
+        {
+            $briefAssigneApprenants = [];
+            $promoBriefs = $promo->getPromoBriefs();
+            foreach ($promoBriefs as $promoBrief)
+            {
+                $brief = $promoBrief->getBrief();
+                if($brief->getStatutBrief() == "assigne" && !in_array($brief,$briefAssigneApprenants))
+                {
+                    $briefAssigneApprenants[] = $brief;
+                }
+            }
+            return $this->json($briefAssigneApprenants,Response::HTTP_OK);
+        }
+        return  $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
 }

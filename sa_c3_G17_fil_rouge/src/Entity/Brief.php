@@ -29,6 +29,27 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
  *          },
  *          "getBriefsInGroupe" = {
  *              "path" = "/formateurs/promos/{idPromo}/groupes/{idGroupe}/briefs",
+ *              "requirements" = {"idPromo"="\d+","idGroupe"="\d+"},
+ *              "method" = "GET",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "getBriefsApprenant" = {
+ *              "path" = "/apprenants/promos/{id}/briefs",
+ *              "requirements" = {"id"="\d+"},
+ *              "method" = "GET",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "getFormateurValideBriefs" = {
+ *              "path" = "/formateurs/{id}/briefs/valide",
+ *              "requirements" = {"id"="\d+"},
+ *              "method" = "GET",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "getBriefsBrouillonFormateur" = {
+ *              "path" = "/formateurs/{id}/briefs/brouillons",
  *              "requirements" = {"id"="\d+"},
  *              "method" = "GET",
  *              "security"="is_granted('ROLE_FORMATEUR')",
