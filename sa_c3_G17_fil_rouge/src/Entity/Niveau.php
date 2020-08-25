@@ -22,7 +22,7 @@ class Niveau
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"competence:read","niveau:read","brief:read"})
+     * @Groups({"competence:read","niveau:read","getBriefs:read"})
      */
     private $id;
 
@@ -31,7 +31,7 @@ class Niveau
      * @Assert\NotBlank(
      *     message="Le libelle est obligatoire"
      * )
-     * @Groups({"niveau:read","brief:read"})
+     * @Groups({"niveau:read","getBriefs:read"})
      */
     private $libelle;
 
@@ -40,7 +40,7 @@ class Niveau
      * @Assert\NotBlank(
      *     message="Le critère d'évaluation est obligatoire"
      * )
-     * @Groups({"niveau:read","brief:read"})
+     * @Groups({"niveau:read","getBriefs:read"})
      */
     private $critereEvaluation;
 
@@ -49,14 +49,14 @@ class Niveau
      * @Assert\NotBlank(
      *     message="Le groupe d'action à réaliser est obligatoire"
      * )
-     * @Groups({"niveau:read","brief:read"})
+     * @Groups({"niveau:read","getBriefs:read"})
      */
     private $groupeAction;
 
     /**
      * @ORM\ManyToOne(targetEntity=Competence::class, inversedBy="niveaux")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $competence;
 

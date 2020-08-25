@@ -12,11 +12,11 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 /**
  * @ApiResource(
- *      normalizationContext={"groups" = {"brief:read"}},
  *      collectionOperations={
  *          "getBriefs" = {
  *              "path" = "/formateurs/briefs",
  *              "method" = "GET",
+ *              "normalization_context" = {"groups"={"getBriefs:read"}},
  *              "security"="is_granted('ROLE_FORMATEUR')",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
@@ -24,12 +24,14 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
  *              "path" = "/formateurs/promos/{id}/briefs",
  *              "requirements" = {"id"="\d+"},
  *              "method" = "GET",
+ *              "normalization_context" = {"groups":"getBriefs:read"},
  *              "security"="is_granted('ROLE_FORMATEUR')",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
  *          "getBriefsInGroupe" = {
  *              "path" = "/formateurs/promos/{idPromo}/groupes/{idGroupe}/briefs",
  *              "requirements" = {"idPromo"="\d+","idGroupe"="\d+"},
+ *              "normalization_context" = {"groups"={"getBriefs:read","getBriefsInGroupe:read"}},
  *              "method" = "GET",
  *              "security"="is_granted('ROLE_FORMATEUR')",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
@@ -38,6 +40,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
  *              "path" = "/apprenants/promos/{id}/briefs",
  *              "requirements" = {"id"="\d+"},
  *              "method" = "GET",
+ *              "normalization_context" = {"groups"={"getBriefs:read","getBriefsInGroupe:read"}},
  *              "security"="is_granted('ROLE_FORMATEUR')",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
@@ -45,6 +48,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
  *              "path" = "/formateurs/{id}/briefs/valide",
  *              "requirements" = {"id"="\d+"},
  *              "method" = "GET",
+ *              "normalization_context" = {"groups":"getBriefs:read"},
  *              "security"="is_granted('ROLE_FORMATEUR')",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
@@ -52,7 +56,16 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
  *              "path" = "/formateurs/{id}/briefs/brouillons",
  *              "requirements" = {"id"="\d+"},
  *              "method" = "GET",
+ *              "normalization_context" = {"groups":"getBriefs:read"},
  *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "getBriefInPromo" = {
+ *              "path" = "/formateurs/promos/{idPromo}/briefs/{idBrief}",
+ *              "requirements" = {"idPromo"="\d+","idBrief"="\d+"},
+ *              "normalization_context" = {"groups"={"getBriefs:read","getBriefsInGroupe:read"}},
+ *              "method" = "GET",
+ *              "security"="is_granted('VIEW',object)",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          }
  *     },
@@ -65,55 +78,55 @@ class Brief
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $langue;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $titre;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $contexte;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $livrable;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $modalitesPedagogiques;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $critereDePerformance;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $modalitesEvaluation;
 
@@ -124,69 +137,68 @@ class Brief
 
     /**
      * @ORM\Column(type="date")
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $dateCreation;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $statutBrief;
 
     /**
      * @ORM\ManyToMany(targetEntity=Groupes::class, inversedBy="briefs")
      * @MaxDepth(2)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefsInGroupe:read"})
      */
     private $groupes;
 
     /**
      * @ORM\ManyToOne(targetEntity=Formateur::class, inversedBy="briefs")
      * @MaxDepth(1)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefsInGroupe:read"})
      */
     private $formateur;
 
     /**
      * @ORM\ManyToOne(targetEntity=Referentiel::class, inversedBy="briefs")
      * @MaxDepth(2)
-     * @Groups({"brief:read"})
+     *
      */
     private $referentiel;
 
     /**
      * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="brief")
      * @MaxDepth(2)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read","getBriefsInGroupe:read"})
      */
     private $niveaux;
 
     /**
      * @ORM\ManyToMany(targetEntity=Tag::class, inversedBy="briefs")
      * @MaxDepth(1)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $tags;
 
     /**
      * @ORM\OneToMany(targetEntity=Ressource::class, mappedBy="brief")
      * @MaxDepth(1)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $ressources;
 
     /**
      * @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="brief")
      * @MaxDepth(1)
-     * @Groups({"brief:read"})
      */
     private $promoBriefs;
 
     /**
      * @ORM\ManyToMany(targetEntity=LivrableAttendu::class, mappedBy="briefs")
      * @MaxDepth(2)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $livrableAttendus;
 

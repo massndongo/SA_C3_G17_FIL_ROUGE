@@ -33,7 +33,12 @@ class BriefController extends AbstractController
      * @Route(
      *     path="/api/formateurs/briefs",
      *     methods={"GET"},
-     *     name="getBriefs"
+     *     name="getBriefs",
+     *     defaults={
+     *          "_controller"="\App\Controller\BriefController::getBriefs",
+     *          "_api_resource_class"=Brief::class,
+     *          "_api_collection_operation_name"="getBriefs"
+     *      }
      * )
     */
     public function getBriefs()
@@ -43,14 +48,19 @@ class BriefController extends AbstractController
             return $this->json(["message" => self::ACCESS_DENIED]);
         }
         $briefs = $this->briefRepository->findAll();
-        return  $this->json($briefs,Response::HTTP_OK);
+        return  $briefs;
     }
 
     /**
      * @Route(
      *     path="/api/formateurs/promos/{idPromo<\d+>}/briefs/{idBrief<\d+>}",
      *     methods={"GET"},
-     *     name="getBriefInPromo"
+     *     name="getBriefInPromo",
+     *     defaults={
+     *          "_controller"="\App\Controller\BriefController::getBriefInPromo",
+     *          "_api_resource_class"=Brief::class,
+     *          "_api_collection_operation_name"="getBriefInPromo"
+     *      }
      * )
      */
     public function getBriefInPromo($idPromo,$idBrief)
@@ -59,10 +69,10 @@ class BriefController extends AbstractController
         {
             return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        $promo = $this->promosRepository->findOneBy(["id" => $idPromo]);
+        $promo = $this->promosRepository->findOneBy(["id" => (int)$idPromo]);
         if($promo && !$promo->getIsDeleted())
         {
-            $brief = $this->briefRepository->findOneBy(["id" => $idBrief]);
+            $brief = $this->briefRepository->findOneBy(["id" => (int)$idBrief]);
             if ($brief)
             {
                 $promoBriefs = $brief->getPromoBriefs();
@@ -70,7 +80,7 @@ class BriefController extends AbstractController
                 {
                     if ($promoBrief->getBrief() == $brief)
                     {
-                        return $this->json($brief,Response::HTTP_OK);
+                        return $brief;
                     }
                 }
             }
@@ -82,7 +92,12 @@ class BriefController extends AbstractController
      * @Route(
      *     path="/api/formateurs/promos/{id}/briefs",
      *     methods={"GET"},
-     *     name="getBbriefsFormateur"
+     *     name="getBbriefsFormateur",
+     *     defaults={
+     *          "_controller"="\App\Controller\BriefController::getBbriefsFormateur",
+     *          "_api_resource_class"=Brief::class,
+     *          "_api_collection_operation_name"="getBriefsFormateur"
+     *      }
      * )
      */
     public function getBbriefsFormateur($id)
@@ -91,39 +106,30 @@ class BriefController extends AbstractController
         {
             return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        $promo = $this->promosRepository->findOneBy(["id" => $id]);
+        $promo = $this->promosRepository->findOneBy(["id" => (int)$id]);
         if($promo && !$promo->getIsDeleted())
         {
-            $formateur = $this->connectedTeacher;
-            $promos = $formateur->getPromos()->getValues();
-            $message = "";
-            $status = null;
-            if(in_array($promo,$promos))
+            $promoBriefs = $promo->getPromoBriefs();
+            $briefs = [];
+            foreach ($promoBriefs as $promoBrief)
             {
-                $role = $formateur->getRoles()[0];
-                if($role == "ROLE_FORMATEUR")
-                {
-                    $briefs = $formateur->getBriefs();
-                    $message = $briefs;
-                    $status = Response::HTTP_OK;
-                }else{
-                    $message = "Seul le formateur peut lister ses briefs";
-                    $status = Response::HTTP_FORBIDDEN;
-                }
-            }else{
-                $message = "Ce formateur n'es pas affecté à cette promo.";
-                $status = Response::HTTP_NOT_FOUND;
+                $briefs[] = $promoBrief->getBrief();
             }
-            return  $this->json(["message" => $message],$status);
+            return $briefs;
         }
-        return  $this->json(["message" => self::RESOURCE_NOT_FOUND]);
+        return  $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
 
     /**
      * @Route(
      *     path="/api/formateurs/promos/{idPromo}/groupes/{idGroupe}/briefs",
      *     methods={"GET"},
-     *     name="getBriefsInGroupe"
+     *     name="getBriefsInGroupe",
+     *     defaults={
+     *          "_controller"="\App\Controller\BriefController::getBriefsInGroupe",
+     *          "_api_resource_class"=Brief::class,
+     *          "_api_collection_operation_name"="getBriefsInGroupe"
+     *      }
      * )
      */
     public function getBriefsInGroupe($idPromo,$idGroupe)
@@ -132,10 +138,10 @@ class BriefController extends AbstractController
         {
             return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        $promo = $this->promosRepository->findOneBy(["id" => $idPromo]);
+        $promo = $this->promosRepository->findOneBy(["id" => (int)$idPromo]);
         if ($promo && !$promo->getIsDeleted())
         {
-            $groupe = $this->groupesRepository->findOneBy(["id" => $idGroupe]);
+            $groupe = $this->groupesRepository->findOneBy(["id" => (int)$idGroupe]);
             $message = '';
             $status = null;
             if ($groupe)
@@ -143,8 +149,7 @@ class BriefController extends AbstractController
                 $groupesInPromo = $promo->getGroupes()->getValues();
                 if (in_array($groupe,$groupesInPromo))
                 {
-                    $message = $groupe->getBriefs();
-                    $status = Response::HTTP_OK;
+                    return $groupe->getBriefs();
                 }
                 else{
                     $message = "Ce groupe n'est pas dans cette promo.";
@@ -164,7 +169,12 @@ class BriefController extends AbstractController
      * @Route(
      *     path="/api/formateurs/{id<\d+>}/briefs/brouillons",
      *     methods={"GET"},
-     *     name="getBriefsBrouillonFormateur"
+     *     name="getBriefsBrouillonFormateur",
+     *     defaults={
+     *          "_controller"="\App\Controller\BriefController::getBriefsBrouillonFormateur",
+     *          "_api_resource_class"=Brief::class,
+     *          "_api_collection_operation_name"="getBriefsBrouillonFormateur"
+     *      }
      * )
      */
     public function getBriefsBrouillonFormateur($id,FormateurRepository $formateurRepository)
@@ -173,13 +183,12 @@ class BriefController extends AbstractController
         {
             return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        $formateur = $formateurRepository->findOneBy(["id" => $id]);
+        $formateur = $formateurRepository->findOneBy(["id" => (int)$id]);
         if($formateur && !$formateur->getIsDeleted())
         {
             $result = $this->filterBriefWithStatus($formateur,"brouillon");
-            $message = $result[0];
-            $status = $result[1];
-            return  $this->json(["message" => $message],$status);
+            $message = $result["message"];
+            return  $message;
         }
         return  $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
@@ -188,7 +197,12 @@ class BriefController extends AbstractController
      * @Route(
      *     path="/api/formateurs/{id<\d+>}/briefs/valide",
      *     methods={"GET"},
-     *     name="getFormateurValideBriefs"
+     *     name="getFormateurValideBriefs",
+     *     defaults={
+     *          "_controller"="\App\Controller\BriefController::getBriefsBrouillonFormateur",
+     *          "_api_resource_class"=Brief::class,
+     *          "_api_collection_operation_name"="getBriefsBrouillonFormateur"
+     *      }
      * )
      */
     public function getFormateurValideBriefs($id,FormateurRepository $formateurRepository)
@@ -197,13 +211,12 @@ class BriefController extends AbstractController
         {
             return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        $formateur = $formateurRepository->findOneBy(["id" => $id]);
+        $formateur = $formateurRepository->findOneBy(["id" => (int)$id]);
         if ($formateur && !$formateur->getIsDeleted())
         {
             $result = $this->filterBriefWithStatus($formateur,"valide");
-            $message = $result[0];
-            $status = $result[1];
-            return  $this->json(["message" => $message],$status);
+            $message = $result["message"];
+            return  $message;
         }
 
         return  $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
@@ -220,14 +233,19 @@ class BriefController extends AbstractController
                 $briefsValides[] = $brief;
             }
         }
-        return [$briefsValides,Response::HTTP_OK];
+        return ["message" =>$briefsValides,"status" =>Response::HTTP_OK];
     }
 
     /**
      * @Route(
      *     path="/api/apprenants/promos/{id<\d+>}/briefs",
      *     methods={"GET"},
-     *     name="getBriefsApprenant"
+     *     name="getBriefsApprenant",
+     *     defaults={
+     *          "_controller"="\App\Controller\BriefController::getBriefsApprenant",
+     *          "_api_resource_class"=Brief::class,
+     *          "_api_collection_operation_name"="getBriefsApprenant"
+     *      }
      * )
      */
     public function getBriefsApprenant($id)
@@ -236,7 +254,7 @@ class BriefController extends AbstractController
         {
             return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        $promo = $this->promosRepository->findOneBy(["id" => $id]);
+        $promo = $this->promosRepository->findOneBy(["id" => (int)$id]);
         if ($promo && !$promo->getIsDeleted())
         {
             $briefAssigneApprenants = [];
@@ -244,12 +262,12 @@ class BriefController extends AbstractController
             foreach ($promoBriefs as $promoBrief)
             {
                 $brief = $promoBrief->getBrief();
-                if($brief->getStatutBrief() == "assigne" && !in_array($brief,$briefAssigneApprenants))
+                if($brief->getStatutBrief() == "assigne")
                 {
                     $briefAssigneApprenants[] = $brief;
                 }
             }
-            return $this->json($briefAssigneApprenants,Response::HTTP_OK);
+            return $briefAssigneApprenants;
         }
         return  $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }

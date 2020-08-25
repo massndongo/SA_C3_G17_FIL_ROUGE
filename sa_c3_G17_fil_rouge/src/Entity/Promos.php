@@ -81,7 +81,7 @@ class Promos
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"promos:read"})
+     * @Groups({"promos:read","getBriefsInGroupe:read"})
      */
     private $id;
 
@@ -90,7 +90,7 @@ class Promos
      * @Assert\NotBlank(
      *     message="Le choix de la langue est obligatoire"
      * )
-     * @Groups({"promos:read"})
+     * @Groups({"promos:read","getBriefsInGroupe:read"})
      */
     private $langue;
 
@@ -99,7 +99,7 @@ class Promos
      * @Assert\NotBlank(
      *     message="Le titre est obligatoire"
      * )
-     * @Groups({"promos:read"})
+     * @Groups({"promos:read","getBriefsInGroupe:read"})
      */
     private $titre;
 
@@ -108,13 +108,13 @@ class Promos
      * @Assert\NotBlank(
      *     message="La description de la promo est obligatoire"
      * )
-     * @Groups({"promos:read"})
+     * @Groups({"promos:read","getBriefsInGroupe:read"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255,nullable=true)
-     * @Groups({"promos:read"})
+     * @Groups({"promos:read","getBriefsInGroupe:read"})
      */
     private $lieu;
 
@@ -123,7 +123,7 @@ class Promos
      * @Assert\NotBlank(
      *     message="La date de début est obligatoire"
      * )
-     * @Groups({"promos:read"})
+     * @Groups({"promos:read","getBriefsInGroupe:read"})
      */
     private $dateDebut;
 
@@ -132,13 +132,13 @@ class Promos
      * @Assert\NotBlank(
      *     message="La date de fin est obligatoire"
      * )
-     * @Groups({"promos:read"})
+     * @Groups({"promos:read","getBriefsInGroupe:read"})
      */
     private $dateFinProvisoire;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promos:read"})
+     * @Groups({"promos:read","getBriefsInGroupe:read"})
      * @Assert\NotBlank(
      *     message="La fabrique est obligatoire"
      * )
@@ -147,6 +147,7 @@ class Promos
 
     /**
      * @ORM\Column(type="date",nullable=true)
+     *
      */
     private $dateFinReelle;
 

@@ -20,13 +20,13 @@ class LivrableAttendu
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $libelle;
 
@@ -39,7 +39,7 @@ class LivrableAttendu
     /**
      * @ORM\OneToMany(targetEntity=Livrables::class, mappedBy="livrableAttendu")
      * @MaxDepth(1)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $livrables;
 
