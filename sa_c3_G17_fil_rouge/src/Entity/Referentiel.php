@@ -40,7 +40,7 @@ class Referentiel
     private $presentation;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="blob", length=255, nullable=true)
      * @Groups({"promos:read","referentiel:read"})
      */
     private $programme;

@@ -27,7 +27,7 @@ class PromoBrief
     private $statut;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="promoBriefs")
+     * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="promoBriefs",cascade={"persist"})
      */
     private $brief;
 
@@ -41,9 +41,20 @@ class PromoBrief
      */
     private $livrablePartiels;
 
+    /**
+     * @ORM\OneToMany(targetEntity=PromoBriefApprenant::class, mappedBy="prommoBrief")
+     */
+    private $promoBriefApprenants;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isDeleted;
+
     public function __construct()
     {
         $this->livrablePartiels = new ArrayCollection();
+        $this->promoBriefApprenants = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -114,6 +125,49 @@ class PromoBrief
                 $livrablePartiel->setPromoBrief(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|PromoBriefApprenant[]
+     */
+    public function getPromoBriefApprenants(): Collection
+    {
+        return $this->promoBriefApprenants;
+    }
+
+    public function addPromoBriefApprenant(PromoBriefApprenant $promoBriefApprenant): self
+    {
+        if (!$this->promoBriefApprenants->contains($promoBriefApprenant)) {
+            $this->promoBriefApprenants[] = $promoBriefApprenant;
+            $promoBriefApprenant->setPrommoBrief($this);
+        }
+
+        return $this;
+    }
+
+    public function removePromoBriefApprenant(PromoBriefApprenant $promoBriefApprenant): self
+    {
+        if ($this->promoBriefApprenants->contains($promoBriefApprenant)) {
+            $this->promoBriefApprenants->removeElement($promoBriefApprenant);
+            // set the owning side to null (unless already changed)
+            if ($promoBriefApprenant->getPrommoBrief() === $this) {
+                $promoBriefApprenant->setPrommoBrief(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getIsDeleted(): ?bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setIsDeleted(bool $isDeleted): self
+    {
+        $this->isDeleted = $isDeleted;
 
         return $this;
     }

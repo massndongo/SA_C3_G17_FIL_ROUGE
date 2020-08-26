@@ -45,7 +45,7 @@ class PromosController extends AbstractController
     {
 
         $sender = 'terangawebdevelopment@gmail.com';
-        $receiver = "petitpapatoure98@gmail.com";
+        $receiver = "massndongo86@gmail.com";
         $message = (new \Swift_Message("Ajout apprenant au promo"))
             ->setFrom($sender)
             ->setTo($receiver)

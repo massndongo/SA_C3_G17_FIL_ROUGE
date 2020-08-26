@@ -9,7 +9,53 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     collectionOperations={
+ *          "add_brief"={
+ *              "method"="POST",
+ *              "path"="/formateurs/briefs",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "duplicate_brief"={
+ *              "method"="POST",
+ *              "path"="/formateurs/briefs/{id}",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *
+ *          },
+ *          "add_url_livrables_attendus"={
+ *              "method"="POST",
+ *              "path"="/apprenants/{idStudent}/groupe/{id}/livrables",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *
+ *          }
+ *     },
+ *      itemOperations={
+ *          "add_assignation"={
+ *              "method"="PUT",
+ *              "path" = "/formateurs/promo/{idPromo}/brief/{id}/assignation",
+ *              "security" = "is_granted('ROLE_FORMATEUR')",
+ *              "security_message" = "Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "set_brief"={
+ *              "method"="PUT",
+ *              "path"="/formateurs/promo/{idPromo}/brief/{id}",
+ *              "requirements"={"id"="\d+"},
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "delete_brief"={
+ *              "method"="DELETE",
+ *              "path"="/formateurs/promo/{idPromo}/brief/{id}",
+ *              "requirements"={"id"="\d+"},
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          }
+ * 
+ *     },
+ * )
  * @ORM\Entity(repositoryClass=BriefRepository::class)
  */
 class Brief
@@ -62,7 +108,7 @@ class Brief
     private $modalitesEvaluation;
 
     /**
-     * @ORM\Column(type="blob")
+     * @ORM\Column(type="blob", nullable=true)
      */
     private $avatar;
 
@@ -107,7 +153,7 @@ class Brief
     private $ressources;
 
     /**
-     * @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="brief")
+     * @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="brief",cascade={"persist"})
      */
     private $promoBriefs;
 
@@ -115,6 +161,11 @@ class Brief
      * @ORM\ManyToMany(targetEntity=LivrableAttendu::class, mappedBy="briefs")
      */
     private $livrableAttendus;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isDeleted;
 
     public function __construct()
     {
@@ -129,6 +180,11 @@ class Brief
     public function getId(): ?int
     {
         return $this->id;
+    }
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
     }
 
     public function getLangue(): ?string
@@ -456,6 +512,18 @@ class Brief
             $this->livrableAttendus->removeElement($livrableAttendu);
             $livrableAttendu->removeBrief($this);
         }
+
+        return $this;
+    }
+
+    public function getIsDeleted(): ?bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setIsDeleted(bool $isDeleted): self
+    {
+        $this->isDeleted = $isDeleted;
 
         return $this;
     }
