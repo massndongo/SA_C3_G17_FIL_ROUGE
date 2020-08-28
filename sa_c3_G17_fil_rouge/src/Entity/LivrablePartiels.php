@@ -19,42 +19,43 @@ class LivrablePartiels
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"getBriefsInGroupe:read"})
+     * @Groups({"getBriefsInGroupe:read","apprenant:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"getBriefsInGroupe:read"})
+     * @Groups({"getBriefsInGroupe:read","apprenant:read"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"getBriefsInGroupe:read"})
+     * @Groups({"getBriefsInGroupe:read","apprenant:read"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="date")
-     * @Groups({"getBriefsInGroupe:read"})
+     * @Groups({"getBriefsInGroupe:read","apprenant:read"})
      */
     private $delai;
 
     /**
      * @ORM\Column(type="date")
-     * @Groups({"getBriefsInGroupe:read"})
+     * @Groups({"getBriefsInGroupe:read","apprenant:read"})
      */
     private $dateCreation;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"getBriefsInGroupe:read"})
+     * @Groups({"getBriefsInGroupe:read","apprenant:read"})
      */
     private $type;
 
     /**
      * @ORM\ManyToMany(targetEntity=Niveau::class, inversedBy="livrablePartiels")
+     * @Groups({"apprenant:read"})
      */
     private $niveaux;
 

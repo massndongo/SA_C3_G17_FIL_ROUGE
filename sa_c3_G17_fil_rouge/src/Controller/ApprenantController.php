@@ -5,6 +5,7 @@ use App\Entity\Apprenant;
 use App\Entity\User;
 use App\Repository\ApprenantRepository;
 use App\Repository\ProfilRepository;
+use App\Repository\PromosRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,6 +19,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ApprenantController extends AbstractController
 {
+    private const ACCESS_DENIED = "Vous n'avez pas accés à cette ressource.",
+        RESOURCE_NOT_FOUND = "Ressource inexistante.";
+
     /**
      * @Route(
      *     path="/api/apprenants",
@@ -74,7 +78,9 @@ class ApprenantController extends AbstractController
         $manager->persist($student);
         $manager->flush();
         if ($opened)
+        {
             fclose($avatar);
+        }
         return $this->json($student,Response::HTTP_CREATED);
     }
 
@@ -94,7 +100,7 @@ class ApprenantController extends AbstractController
         if($student->getRoles()[0] == "ROLE_APPRENANT"){
             return $this->json($student,Response::HTTP_OK);
         }else{
-            return $this->json(["message" => "Vous n'avez pas acces à cette ressource"],Response::HTTP_FORBIDDEN);
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
     }
 
@@ -112,8 +118,11 @@ class ApprenantController extends AbstractController
     public function setStudent(User $student,EntityManagerInterface $manager,Request $request,UserRepository $userRepository,SerializerInterface $serializer,ValidatorInterface $validator,UserPasswordEncoderInterface $encoder)
     {
         if($student->getRoles()[0] == "ROLE_APPRENANT"){
+            return $student;
         }
-        return $this->json(["message" => "Vous n'avez pas acces à cette ressource"],Response::HTTP_FORBIDDEN);
+        return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
 
     }
+
+
 }

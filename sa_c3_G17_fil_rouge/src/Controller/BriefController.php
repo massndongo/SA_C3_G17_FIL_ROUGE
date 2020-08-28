@@ -6,6 +6,7 @@ use App\Entity\Brief;
 use App\Repository\BriefRepository;
 use App\Repository\FormateurRepository;
 use App\Repository\GroupesRepository;
+use App\Repository\PromoBriefRepository;
 use App\Repository\PromosRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -47,8 +48,7 @@ class BriefController extends AbstractController
         {
             return $this->json(["message" => self::ACCESS_DENIED]);
         }
-        $briefs = $this->briefRepository->findAll();
-        return  $briefs;
+        return $this->briefRepository->findAll();
     }
 
     /**
@@ -187,8 +187,7 @@ class BriefController extends AbstractController
         if($formateur && !$formateur->getIsDeleted())
         {
             $result = $this->filterBriefWithStatus($formateur,"brouillon");
-            $message = $result["message"];
-            return  $message;
+            return $result["message"];
         }
         return  $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
@@ -215,8 +214,7 @@ class BriefController extends AbstractController
         if ($formateur && !$formateur->getIsDeleted())
         {
             $result = $this->filterBriefWithStatus($formateur,"valide");
-            $message = $result["message"];
-            return  $message;
+            return $result["message"];
         }
 
         return  $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
@@ -268,6 +266,41 @@ class BriefController extends AbstractController
                 }
             }
             return $briefAssigneApprenants;
+        }
+        return  $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
+    }
+
+    /**
+     * @Route(
+     *     path="/api/apprenants/promos/{idPromo<\d+>}/briefs/{idBrief<\d+>}",
+     *     methods={"GET"},
+     *     name="getLivrableRenduApprenant",
+     *     defaults={
+     *          "_api_resource_class"=Brief::class,
+     *          "_api_collection_operation_name"="getLivrableRenduApprenant",
+     *          "_controller"="App\Controller\BriefController::getLivrableRenduApprenant",
+     *          "_api_receive"=false,
+     *     }
+     * )
+     */
+    public function getLivrableRenduApprenant($idPromo,$idBrief,PromoBriefRepository $promoBriefRepository)
+    {
+        if(!$this->isGranted("VIEW",new Brief()))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        }
+        $promo = $this->promosRepository->findOneBy(["id" => $idPromo]);
+        if($promo && !$promo->getIsDeleted())
+        {
+            $brief = $this->briefRepository->findOneBy(["id" => $idBrief]);
+            if($brief)
+            {
+                $promoBrief = $promoBriefRepository->findOneBy(["promo" => $promo,"brief" => $brief]);
+                if($promoBrief)
+                {
+                    return $brief;
+                }
+            }
         }
         return  $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }

@@ -23,43 +23,43 @@ class Referentiel
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"promos:read","referentiel:read"})
+     * @Groups({"promos:read","referentiel:read","getBriefs:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promos:read","referentiel:read"})
+     * @Groups({"promos:read","referentiel:read","getBriefs:read"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promos:read","referentiel:read"})
+     * @Groups({"promos:read","referentiel:read","getBriefs:read"})
      */
     private $presentation;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promos:read","referentiel:read"})
+     * @Groups({"promos:read","referentiel:read","getBriefs:read"})
      */
     private $programme;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promos:read","referentiel:read"})
+     * @Groups({"promos:read","referentiel:read","getBriefs:read"})
      */
     private $critereAdmission;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promos:read","referentiel:read"})
+     * @Groups({"promos:read","referentiel:read","getBriefs:read"})
      */
     private $critereEvaluation;
 
     /**
      * @ORM\ManyToMany(targetEntity=GroupeCompetence::class, inversedBy="referentiels",cascade={"persist"})
-     * @Groups("ref:read")
+     * @Groups({"ref:read"})
      * @Assert\NotBlank(message="Le username est obligatoire")
      */
     private $groupeCompetence;

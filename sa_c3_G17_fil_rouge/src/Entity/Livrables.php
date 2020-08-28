@@ -17,13 +17,14 @@ class Livrables
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"getBriefs:read"})
+     * @Groups({"apprenant:read"})
+     *
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"getBriefs:read"})
+     * @Groups({"apprenant:read"})
      */
     private $url;
 

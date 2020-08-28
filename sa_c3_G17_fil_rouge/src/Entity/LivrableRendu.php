@@ -7,6 +7,7 @@ use App\Repository\LivrableRenduRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource()
@@ -18,26 +19,31 @@ class LivrableRendu
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"apprenant:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"apprenant:read"})
      */
     private $statut;
 
     /**
      * @ORM\Column(type="date", nullable=true)
+     * @Groups({"apprenant:read"})
      */
     private $delai;
 
     /**
      * @ORM\Column(type="date")
+     * @Groups({"apprenant:read"})
      */
     private $dateDeRendu;
 
     /**
      * @ORM\ManyToOne(targetEntity=LivrablePartiels::class, inversedBy="livrableRendus")
+     * @Groups({"apprenant:read"})
      */
     private $livrablePartiel;
 
@@ -48,6 +54,7 @@ class LivrableRendu
 
     /**
      * @ORM\OneToMany(targetEntity=Commentaire::class, mappedBy="livrableRendu")
+     * @Groups({"apprenant:read"})
      */
     private $commentaires;
 

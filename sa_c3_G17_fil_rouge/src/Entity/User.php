@@ -25,14 +25,14 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"user:read","promos:read","getBriefsInGroupe:read"})
+     * @Groups({"user:read","promos:read","getBriefsInGroupe:read","apprenant:read"})
      */
     protected $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank(message="Le username est obligatoire")
-     * @Groups({"user:read","promos:read","getBriefsInGroupe:read"})
+     * @Groups({"user:read","promos:read","getBriefsInGroupe:read","apprenant:read"})
      *
      */
     protected $username;
@@ -72,21 +72,21 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"user:read","promos:read","getBriefsInGroupe:read"})
+     * @Groups({"user:read","promos:read","getBriefsInGroupe:read","apprenant:read"})
      * @Assert\NotBlank(message="Le prenom est obligatoire")
      */
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"user:read","promos:read","getBriefsInGroupe:read"})
+     * @Groups({"user:read","promos:read","getBriefsInGroupe:read","apprenant:read"})
      * @Assert\NotBlank(message="Le nom est obligatoire")
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
-     * @Groups({"user:read","promos:read","getBriefsInGroupe:read"})
+     * @Groups({"user:read","promos:read","getBriefsInGroupe:read","apprenant:read"})
      * @Assert\NotBlank(message="L'email est obligatoire")
      * @Assert\Email(
      *     message="Veuillez saisir un email valide."

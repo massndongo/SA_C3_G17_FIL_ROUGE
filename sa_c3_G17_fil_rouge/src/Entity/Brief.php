@@ -65,9 +65,17 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
  *              "requirements" = {"idPromo"="\d+","idBrief"="\d+"},
  *              "normalization_context" = {"groups"={"getBriefs:read","getBriefsInGroupe:read"}},
  *              "method" = "GET",
- *              "security"="is_granted('VIEW',object)",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
- *          }
+ *          },
+ *          "getLivrableRenduApprenant" = {
+ *              "path" = "/apprenants/promos/{idPromo}/briefs/{idBrief}",
+ *              "requirements" = {"idPromo"="\d+","idBrief"="\d+"},
+ *              "normalization_context" = {"groups"={"apprenant:read"}},
+ *              "method" = "GET",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
  *     },
  * )
  * @ORM\Entity(repositoryClass=BriefRepository::class)
@@ -78,55 +86,55 @@ class Brief
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"getBriefs:read"})
+     * @Groups({"getBriefs:read","apprenant:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"getBriefs:read"})
+     * @Groups({"getBriefs:read","apprenant:read"})
      */
     private $langue;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"getBriefs:read"})
+     * @Groups({"getBriefs:read","apprenant:read"})
      */
     private $titre;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"getBriefs:read"})
+     * @Groups({"getBriefs:read","apprenant:read"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"getBriefs:read"})
+     * @Groups({"getBriefs:read","apprenant:read"})
      */
     private $contexte;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"getBriefs:read"})
+     * @Groups({"getBriefs:read","apprenant:read"})
      */
     private $livrable;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"getBriefs:read"})
+     * @Groups({"getBriefs:read","apprenant:read"})
      */
     private $modalitesPedagogiques;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"getBriefs:read"})
+     * @Groups({"getBriefs:read","apprenant:read"})
      */
     private $critereDePerformance;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"getBriefs:read"})
+     * @Groups({"getBriefs:read","apprenant:read"})
      */
     private $modalitesEvaluation;
 
@@ -137,19 +145,19 @@ class Brief
 
     /**
      * @ORM\Column(type="date")
-     * @Groups({"getBriefs:read"})
+     * @Groups({"getBriefs:read","apprenant:read"})
      */
     private $dateCreation;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"getBriefs:read"})
+     * @Groups({"getBriefs:read","apprenant:read"})
      */
     private $statutBrief;
 
     /**
      * @ORM\ManyToMany(targetEntity=Groupes::class, inversedBy="briefs")
-     * @MaxDepth(2)
+     * 
      * @Groups({"getBriefsInGroupe:read"})
      */
     private $groupes;
@@ -163,15 +171,16 @@ class Brief
 
     /**
      * @ORM\ManyToOne(targetEntity=Referentiel::class, inversedBy="briefs")
-     * @MaxDepth(2)
      *
+     * @Groups({"getBriefs:read","getBriefsInGroupe:read"})
      */
     private $referentiel;
 
     /**
      * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="brief")
-     * @MaxDepth(2)
-     * @Groups({"getBriefs:read","getBriefsInGroupe:read"})
+     * @MaxDepth(3)
+     * @Groups({"getBriefs:read","getBriefsInGroupe:read","apprenant:read"})
+     *
      */
     private $niveaux;
 
@@ -192,12 +201,13 @@ class Brief
     /**
      * @ORM\OneToMany(targetEntity=PromoBrief::class, mappedBy="brief")
      * @MaxDepth(1)
+     * @Groups({"getBriefs:read","apprenant:read"})
      */
     private $promoBriefs;
 
     /**
      * @ORM\ManyToMany(targetEntity=LivrableAttendu::class, mappedBy="briefs")
-     * @MaxDepth(2)
+     * 
      * @Groups({"getBriefs:read"})
      */
     private $livrableAttendus;
@@ -215,6 +225,12 @@ class Brief
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
     }
 
     public function getLangue(): ?string

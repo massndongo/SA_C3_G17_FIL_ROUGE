@@ -39,7 +39,6 @@ class LivrableAttendu
     /**
      * @ORM\OneToMany(targetEntity=Livrables::class, mappedBy="livrableAttendu")
      * @MaxDepth(1)
-     * @Groups({"getBriefs:read"})
      */
     private $livrables;
 

@@ -21,37 +21,36 @@ class Groupes
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"promos:read","group:read","getBriefsInGroupe:read"})
+     * @Groups({"promos:read","group:read","getBriefsInGroupe:read","apprenant:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promos:read","group:read","getBriefsInGroupe:read"})
+     * @Groups({"promos:read","group:read","getBriefsInGroupe:read","apprenant:read"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="date")
-     * @Groups({"promos:read","group:read","getBriefsInGroupe:read"})
+     * @Groups({"promos:read","group:read","getBriefsInGroupe:read","apprenant:read"})
      */
     private $dateCreation;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promos:read","group:read","getBriefsInGroupe:read"})
+     * @Groups({"promos:read","group:read","getBriefsInGroupe:read","apprenant:read"})
      */
     private $statut;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"promos:read","group:read","getBriefsInGroupe:read"})
+     * @Groups({"promos:read","group:read","getBriefsInGroupe:read","apprenant:read"})
      */
     private $type;
 
     /**
      * @ORM\ManyToOne(targetEntity=Promos::class, inversedBy="groupes")
-     * @Groups({"getBriefsInGroupe:read"})
      */
     private $promos;
 

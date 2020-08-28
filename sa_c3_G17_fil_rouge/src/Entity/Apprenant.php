@@ -7,15 +7,17 @@ use App\Repository\ApprenantRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
- *     normalizationContext={"groups"={"user:read"}},
+ *     normalizationContext={"groups"={"apprenant:read"}},
  *     itemOperations={
  *          "get_student"={
  *              "method"="GET",
  *              "path"="/apprenants/{id}",
  *              "requirements"={"id"="\d+"},
+ *              "normalization_context" = {"groups"={"user:read"}},
  *              "security"="(is_granted('ROLE_ADMIN'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource"
  *          },
@@ -23,23 +25,25 @@ use Doctrine\ORM\Mapping as ORM;
  *              "method"="PUT",
  *              "path"="/apprenants/{id}",
  *              "requirements"={"id"="\d+"},
+ *              "normalization_context" = {"groups"={"user:read"}},
  *              "security"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR')) or is_granted('ROLE_CM') or is_granted('ROLE_APPRENANT'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource"
- *          }
+ *          },
  *     },
  *     collectionOperations={
  *          "add_student"={
  *              "method"="POST",
  *              "path"="/apprenants",
+ *              "normalization_context" = {"groups"={"user:read"}},
  *              "security"="is_granted('ROLE_ADMIN')",
  *              "security_message"="Vous n'avez pas access à cette Ressource"
  *          },
  *          "get_students"={
  *              "method"="GET",
  *              "path"="/apprenants",
+ *              "normalization_context" = {"groups"={"user:read"}},
  *              "security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR)",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
- *
  *          },
  *     }
  * )
@@ -51,6 +55,7 @@ class Apprenant extends User
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"apprenant:read"})
      */
     protected $id;
 
@@ -66,11 +71,13 @@ class Apprenant extends User
 
     /**
      * @ORM\OneToMany(targetEntity=LivrableRendu::class, mappedBy="apprenant")
+     * @Groups({"apprenant:read"})
      */
     private $livrableRendus;
 
     /**
      * @ORM\OneToMany(targetEntity=Livrables::class, mappedBy="apprenant")
+     * @Groups({"apprenant:read"})
      */
     private $livrables;
 

@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\PromoBriefApprenantRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource()
@@ -26,6 +27,7 @@ class PromoBriefApprenant
 
     /**
      * @ORM\ManyToOne(targetEntity=Apprenant::class, inversedBy="promoBriefApprenants")
+     * @Groups({"apprenant:read"})
      */
     private $apprenant;
 

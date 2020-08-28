@@ -19,23 +19,25 @@ class PromoBrief
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"brief:read"})
+     * @Groups({"getBriefs:read"})
      */
     private $statut;
 
     /**
      * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="promoBriefs")
+     * @Groups({"apprenant:read"})
      */
     private $brief;
 
     /**
      * @ORM\ManyToOne(targetEntity=Promos::class, inversedBy="promoBriefs")
+     * @Groups({"getBriefs:read"})
      */
     private $promo;
 
@@ -46,6 +48,7 @@ class PromoBrief
 
     /**
      * @ORM\OneToMany(targetEntity=PromoBriefApprenant::class, mappedBy="promoBrief")
+     * @Groups({"apprenant:read"})
      */
     private $promoBriefApprenants;
 
