@@ -167,7 +167,10 @@ class PromosController extends AbstractController
      */
     public function getPrincipal($id)
     {
-        $this->canViewPromo();
+        if (!$this->isGranted("VIEW",new Promos()))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        }
         $promoTab = [];
         $promo = $this->promosRepository->findOneBy(["id" => $id]);
         if ($promo && !$promo->getIsDeleted())
@@ -201,7 +204,10 @@ class PromosController extends AbstractController
      */
     public function getReferentiel($id)
     {
-        $this->canViewPromo();
+        if (!$this->isGranted("VIEW",new Promos()))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        }
         $promo = $this->promosRepository->findOneBy(["id" => $id]);
         if ($promo && !$promo->getIsDeleted())
         {
@@ -234,7 +240,10 @@ class PromosController extends AbstractController
      */
     public function getWaitingStudent($id)
     {
-        $this->canViewPromo();
+        if (!$this->isGranted("VIEW",new Promos()))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        }
         $promo = $this->promosRepository->findOneBy(["id" => $id]);
         if ($promo && !$promo->getIsDeleted())
         {
@@ -267,7 +276,10 @@ class PromosController extends AbstractController
      */
     public function getStudentsInPromo($idPromo,$idGroupe)
     {
-        $this->canViewPromo();
+        if (!$this->isGranted("VIEW",new Promos()))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        }
         $promo = $this->promosRepository->findOneBy(["id" => $idPromo]);
         if($promo && !$promo->getIsDeleted())
         {
@@ -289,7 +301,7 @@ class PromosController extends AbstractController
             }
             return  $this->json($promoTab,Response::HTTP_OK);
         }
-        return $this->json(["message" => "Ressource inexistante."],Response::HTTP_NOT_FOUND);
+        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
 
     /**
@@ -301,7 +313,10 @@ class PromosController extends AbstractController
      */
     public function getFormateurInPromo($id)
     {
-        $this->canViewPromo();
+        if (!$this->isGranted("VIEW",new Promos()))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        }
         $promo = $this->promosRepository->findOneBy(["id" => $id]);
         if($promo && !$promo->getIsDeleted())
         {
@@ -320,7 +335,7 @@ class PromosController extends AbstractController
             }
             return  $this->json($promoTab,Response::HTTP_OK);
         }
-        return $this->json(["message" => "Ressource inexistante."],Response::HTTP_NOT_FOUND);
+        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
     
     /**
@@ -332,10 +347,9 @@ class PromosController extends AbstractController
      */
     public function addPromo(Request $request,\Swift_Mailer $mailer,TokenStorageInterface $tokenStorage,ReferentielRepository $referentielRepository,ApprenantRepository $apprenantRepository,FormateurRepository $formateurRepository)
     {
-        $promo = new Promos();
-        if (!$this->isGranted("EDIT",$promo))
+        if (!$this->isGranted("EDIT",new Promos()))
         {
-            return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
         $promoJson = $request->getContent();
         $sender = 'terangawebdevelopment@gmail.com';
@@ -426,9 +440,12 @@ class PromosController extends AbstractController
      *     name="setFormateurInPromo"
      * )
      */
-    public function setFormateurInPromo($id,Request $request,UserPasswordEncoderInterface $encoder,UserRepository  $userRepository)
+    public function setFormateurInPromo($id,Request $request,UserPasswordEncoderInterface $encoder)
     {
-        $this->canSetPromo();
+        if (!$this->isGranted("SET",new Promos()))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        }
         $promo = $this->promosRepository->findOneBy(["id" => $id]);
         $profs = [];
         if ($promo && !$promo->getIsDeleted())
@@ -498,9 +515,12 @@ class PromosController extends AbstractController
     */
     public function setPromo(Request $request,$id,ReferentielRepository $referentielRepository)
     {
-        $this->canSetPromo();
+        if (!$this->isGranted("SET",new Promos()))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        }
         $oldPromo = $this->promosRepository->findOneBy(["id" => $id]);
-        if($oldPromo)
+        if($oldPromo && !$oldPromo->getIsDeleted())
         {
             $promoJson = $request->getContent();
             $promoTab = $this->serializer->decode($promoJson,"json");
@@ -562,7 +582,7 @@ class PromosController extends AbstractController
             $this->manager->flush();
             return $this->json($oldPromo,Response::HTTP_OK);
         }
-        return $this->json(["message" => "Ressource inexistante."],Response::HTTP_NOT_FOUND);
+        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
 
     /**
@@ -574,7 +594,10 @@ class PromosController extends AbstractController
      */
     public function setStatutGroupe($idPromo,$idGroupe,Request $request)
     {
-        $this->canSetPromo();
+        if (!$this->isGranted("SET",new Promos()))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        }
         $promo = $this->promosRepository->findOneBy(["id" => $idPromo]);
         if($promo && !$promo->getIsDeleted())
         {
@@ -597,7 +620,7 @@ class PromosController extends AbstractController
                 }
             }
         }
-        return $this->json(["message" => "Ressource inexistante."],Response::HTTP_NOT_FOUND);
+        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
 
     private function setReferentiel($referentiel,$oldPromo,$referentielRepository,$promoObj)
@@ -642,19 +665,4 @@ class PromosController extends AbstractController
         return $promoObj;
     }
 
-    private function canViewPromo()
-    {
-        $promo = new Promos();
-        if (!$this->isGranted("VIEW",$promo))
-        {
-            return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
-        }
-    }
-
-    private function canSetPromo()
-    {
-        $promo = new Promos();
-        if (!$this->isGranted("SET",$promo))
-            return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
-    }
 }
