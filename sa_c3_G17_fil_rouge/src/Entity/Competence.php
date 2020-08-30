@@ -12,31 +12,33 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
- *     normalizationContext={"groups"={"competence:read"}},
  *     collectionOperations={
  *          "get"={
- *              "path" = "/admin/competences",
+ *              "path" = "/admins/competences",
+ *              "normalization_context"={"groups"={"competence:read"}},
  *              "security"="is_granted('ROLE_FORMATEUR')",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
  *          "post"={
  *              "security_post_denormalize"="is_granted('EDIT',object)",
  *              "security_post_denormalize_message"="Vous n'avez pas access à cette Ressource",
- *              "path" = "/admin/competences",
-
+ *              "path" = "/admins/competences",
+ *              "normalization_context"={"groups"={"competence:read"}},
  *          },
  *     },
  *     itemOperations={
  *          "get"={
- *              "path" = "/admin/competences/{id}",
+ *              "path" = "/admins/competences/{id}",
  *              "requirements"={"id"="\d+"},
+ *              "normalization_context"={"groups"={"competence:read"}},
  *              "security"="is_granted('VIEW',object)",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
  *          "set_competence"={
  *              "method" = "PUT",
- *              "path" = "/admin/competences/{id}",
+ *              "path" = "/admins/competences/{id}",
  *              "requirements"={"id"="\d+"},
+ *              "normalization_context"={"groups"={"competence:read"}},
  *              "security"="is_granted('EDIT',object)",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
@@ -50,7 +52,8 @@ class Competence
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"grpecompetence:read_m","competence:read","getBriefs:read","apprenant:read"})
+     * @Groups({"grpecompetence:read_m","competence:read","getBriefs:read",
+     *     "apprenant:read","refGroupe:read","grpecompetence:competence:read"})
      */
     private $id;
 
@@ -59,7 +62,8 @@ class Competence
      * @Assert\NotBlank(
      *     message="Le libelle est obligatoire"
      * )
-     * @Groups({"grpecompetence:read_m","competence:read","getBriefs:read","apprenant:read"})
+     * @Groups({"grpecompetence:read_m","competence:read","getBriefs:read",
+     *     "apprenant:read","refGroupe:read","grpecompetence:competence:read"})
      */
     private $libelle;
 
@@ -68,7 +72,6 @@ class Competence
      * @Assert\NotBlank(
      *     message="Une competence est dans au moins un groupe de competence"
      * )
-     * @Groups({"grpecompetence:read_m"})
      */
     private $groupeCompetence;
 
@@ -91,7 +94,7 @@ class Competence
      * @Assert\NotNull(
      *     message="Les niveaux d'évaluation sont obligatoires"
      * )
-     * @Groups({"grpecompetence:read_m","competence:read"})
+     * @Groups({"competence:read","grpecompetence:competence:read"})
      */
     private $niveaux;
 

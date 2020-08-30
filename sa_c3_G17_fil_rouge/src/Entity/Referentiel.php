@@ -13,7 +13,22 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
- *     normalizationContext={"groups"={"referentiel:read"}},
+ *     collectionOperations={
+ *          "get_referentiels"={
+ *              "path" = "/admins/referentiels",
+ *              "method"="GET",
+ *              "normalization_context"={"groups"={"referentiel:read"}},
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "get_referentiels_group"={
+ *              "path"="/admins/referentiels/grpecompetences",
+ *              "method"="GET",
+ *              "normalization_context"={"groups"={"referentiel:read","refGroupe:read"}},
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *     }
  * )
  * @ORM\Entity(repositoryClass=ReferentielRepository::class)
  */
@@ -30,43 +45,46 @@ class Referentiel
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"promos:read","referentiel:read","getBriefs:read"})
+     * @Assert\NotBlank()
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"promos:read","referentiel:read","getBriefs:read"})
+     * @Assert\NotBlank()
      */
     private $presentation;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"promos:read","referentiel:read","getBriefs:read"})
+     * @Assert\NotBlank()
      */
     private $programme;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"promos:read","referentiel:read","getBriefs:read"})
+     * @Assert\NotBlank()
      */
     private $critereAdmission;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"promos:read","referentiel:read","getBriefs:read"})
+     * @Assert\NotBlank()
      */
     private $critereEvaluation;
 
     /**
      * @ORM\ManyToMany(targetEntity=GroupeCompetence::class, inversedBy="referentiels",cascade={"persist"})
-     * @Groups({"ref:read"})
-     * @Assert\NotBlank(message="Le username est obligatoire")
+     * @Groups({"referentiel:read","refGroupe:read"})
      */
     private $groupeCompetence;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups("ref:read")
      */
     private $isDeleted;
 

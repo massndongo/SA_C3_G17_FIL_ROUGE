@@ -17,7 +17,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "method"="GET",
  *              "path"="/apprenants/{id}",
  *              "requirements"={"id"="\d+"},
- *              "normalization_context" = {"groups"={"user:read"}},
+ *              "normalization_context" = {"groups"={"apprenant:read"}},
  *              "security"="(is_granted('ROLE_ADMIN'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource"
  *          },
@@ -25,7 +25,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "method"="PUT",
  *              "path"="/apprenants/{id}",
  *              "requirements"={"id"="\d+"},
- *              "normalization_context" = {"groups"={"user:read"}},
+ *              "normalization_context" = {"groups"={"apprenant:read"}},
  *              "security"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR')) or is_granted('ROLE_CM') or is_granted('ROLE_APPRENANT'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource"
  *          },
@@ -34,14 +34,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          "add_student"={
  *              "method"="POST",
  *              "path"="/apprenants",
- *              "normalization_context" = {"groups"={"user:read"}},
+ *              "normalization_context" = {"groups"={"apprenant:read"}},
  *              "security"="is_granted('ROLE_ADMIN')",
  *              "security_message"="Vous n'avez pas access à cette Ressource"
  *          },
  *          "get_students"={
  *              "method"="GET",
  *              "path"="/apprenants",
- *              "normalization_context" = {"groups"={"user:read"}},
+ *              "normalization_context" = {"groups"={"apprenant:read"}},
  *              "security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR)",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
@@ -55,7 +55,7 @@ class Apprenant extends User
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"apprenant:read"})
+     * @Groups({"apprenant:read","promos:appreant:read"})
      */
     protected $id;
 

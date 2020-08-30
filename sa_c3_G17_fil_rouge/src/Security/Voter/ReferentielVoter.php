@@ -27,23 +27,14 @@ class ReferentielVoter extends Voter
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case 'EDIT':
-                // logic to determine if the user can EDIT
-                // return true or false
-                return $user->getRoles()[0] === "ROLE_CM" || $user->getRoles()[0] === "ROLE_FORMATEUR" || $user->getRoles()[0] === "ROLE_ADMIN";
-                break;
+                return ($user->getRoles()[0] === "ROLE_CM" || $user->getRoles()[0] === "ROLE_FORMATEUR") || $user->getRoles()[0] === "ROLE_ADMIN";
             case 'VIEW':
-                // logic to determine if the user can VIEW
-                // return true or false
-                return $user->getRoles()[0] === "ROLE_CM" || $user->getRoles()[0] === "ROLE_FORMATEUR" || $user->getRoles()[0] === "ROLE_ADMIN";
-                break;
+                return ($user->getRoles()[0] === "ROLE_CM" || $user->getRoles()[0] === "ROLE_FORMATEUR") || $user->getRoles()[0] === "ROLE_ADMIN";
             case 'SET':
-                return $user->getRoles()[0] === "ROLE_CM" || $user->getRoles()[0] === "ROLE_FORMATEUR" || $user->getRoles()[0] === "ROLE_ADMIN";
-                break;
+                return ($user->getRoles()[0] === "ROLE_CM" || $user->getRoles()[0] === "ROLE_FORMATEUR") || $user->getRoles()[0] === "ROLE_ADMIN";
             case 'DEL':
-                return $user->getRoles()[0] === "ROLE_CM" || $user->getRoles()[0] === "ROLE_FORMATEUR" || $user->getRoles()[0] === "ROLE_ADMIN" || $user->getRoles()[0] === "ROLE_APPRENANT";
-                break;
+                return ($user->getRoles()[0] === "ROLE_CM" || $user->getRoles()[0] === "ROLE_FORMATEUR") || $user->getRoles()[0] === "ROLE_ADMIN" || $user->getRoles()[0] === "ROLE_APPRENANT";
         }
-
         return false;
     }
 }

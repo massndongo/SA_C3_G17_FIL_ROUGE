@@ -26,16 +26,10 @@ class CompetenceVoter extends Voter
 
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
-            case ('EDIT' || 'SET'):
+            case (('EDIT' || 'SET') || 'VIEW' ):
                 // logic to determine if the user can EDIT
                 // return true or false
                 return $user->getRoles()[0] === "ROLE_ADMIN" || $user->getRoles()[0] === "ROLE_FORMATEUR";
-                break;
-            case 'VIEW':
-                // logic to determine if the user can VIEW
-                // return true or false
-                return $user->getRoles()[0] === "ROLE_ADMIN" || $user->getRoles()[0] === "ROLE_FORMATEUR";
-                break;
         }
 
         return false;

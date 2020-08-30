@@ -9,18 +9,27 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
  *     collectionOperations={
- *          "get_users"={
+ *          "get_profils"={
  *              "method"="GET",
  *              "path"="/admin/profils",
+ *              "normalization_context"={"groups"={"profil:read"}},
  *              "security"="is_granted('ROLE_ADMIN')",
  *              "security_message"="Vous n'avez pas access à cette Ressource"
  *          },
+ *          "get_users_in_profil"={
+ *              "method"="GET",
+ *              "path"="/admin/profils/{id}/users",
+ *              "requirements"={"id"="\d+"},
+ *              "normalization_context"={"groups"={"profilUsers:read"}},
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource"
+ *          },
+ *
  *     },
  *     attributes={
  *          "pagination_items_per_page"=2,
@@ -36,21 +45,20 @@ class Profil
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"user:read"})
+     * @Groups({"profil:read","profilUsers:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank
-     * @Groups({"user:read"})
+     * @Assert\NotBlank(message="Le libelle est obligatoire")
+     * @Groups({"profil:read","profilUsers:read"})
      */
     private $libelle;
 
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="profil")
-     * @ApiSubresource
-     * @Groups({"user:read"})
+     * @Groups({"profilUsers:read"})
      */
     private $users;
 

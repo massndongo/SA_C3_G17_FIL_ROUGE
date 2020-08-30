@@ -61,7 +61,7 @@ class Groupes
 
     /**
      * @ORM\ManyToMany(targetEntity=Apprenant::class, inversedBy="groupes")
-     * @Groups({"getBriefsInGroupe:read","group:read"})
+     * @Groups({"getBriefsInGroupe:read","group:read","promos:appreant:read"})
      */
     private $apprenant;
 

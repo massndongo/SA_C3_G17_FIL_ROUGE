@@ -20,8 +20,17 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class ApprenantController extends AbstractController
 {
     private const ACCESS_DENIED = "Vous n'avez pas accés à cette ressource.",
-        RESOURCE_NOT_FOUND = "Ressource inexistante.";
+        RESOURCE_NOT_FOUND = "Ressource inexistante.",
+        APPRENANT_READ = "apprenant:read";
 
+    private $apprenantRepository,
+            $serializer;
+
+    public function __construct(ApprenantRepository $apprenantRepository,SerializerInterface $serializer)
+    {
+        $this->apprenantRepository = $apprenantRepository;
+        $this->serializer = $serializer;
+    }
     /**
      * @Route(
      *     path="/api/apprenants",
@@ -35,11 +44,15 @@ class ApprenantController extends AbstractController
      */
     public function getApprenants(ApprenantRepository $apprenantRepository)
     {
-
-        $studens = $apprenantRepository->findBy([
+        if (!$this->isGranted("VIEW",new Apprenant()))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        }
+        $students = $apprenantRepository->findBy([
             "isDeleted" => false
         ]);
-        return $this->json($studens,Response::HTTP_OK);
+        $students = $this->serializer->normalize($students,null,["groups" => [self::APPRENANT_READ]]);
+        return $this->json($students,Response::HTTP_OK);
     }
     /**
      * @Route(
@@ -52,23 +65,25 @@ class ApprenantController extends AbstractController
      *     }
      * )
      */
-    public function addStudents(Request $request,SerializerInterface $serializer,UserPasswordEncoderInterface $encoder,EntityManagerInterface $manager,ValidatorInterface $validator,ProfilRepository $profilRepository)
+    public function addStudents(Request $request,UserPasswordEncoderInterface $encoder,EntityManagerInterface $manager,ValidatorInterface $validator,ProfilRepository $profilRepository)
     {
+        if (!$this->isGranted("ADD",new Apprenant()))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        }
         $opened = false;
-        $profil = $profilRepository->findOneBy([
-            "libelle" => "APPRENANT"
-        ]);
-        $student = $request->request->all();
+        $profil = $profilRepository->findOneBy(["libelle" => "APPRENANT"]);
+        $student = $request->getContent();
         $avatar = $request->files->get("avatar");
         if($avatar){
             $avatar = fopen($avatar->getRealPath(),"rb");
             $student["avatar"] = $avatar;
             $opened = true;
         }
-        $student = $serializer->denormalize($student,"App\Entity\Apprenant");
+        $student = $this->serializer>denormalize($student,"App\Entity\Apprenant");
         $errors = $validator->validate($student);
         if (count($errors)){
-            $errors = $serializer->serialize($errors,"json");
+            $errors = $this->serializer>serialize($errors,"json");
             return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
         }
         $password = $student->getPassword();
@@ -81,6 +96,7 @@ class ApprenantController extends AbstractController
         {
             fclose($avatar);
         }
+        $student = $this->serializer->normalize($student,null,["groups" => [self::APPRENANT_READ]]);
         return $this->json($student,Response::HTTP_CREATED);
     }
 
@@ -95,13 +111,19 @@ class ApprenantController extends AbstractController
      *     }
      * )
      */
-    public function getStudent(User $student)
+    public function getStudent($id)
     {
-        if($student->getRoles()[0] == "ROLE_APPRENANT"){
-            return $this->json($student,Response::HTTP_OK);
-        }else{
+        if (!$this->isGranted("VIEW",new Apprenant()))
+        {
             return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
+        $student = $this->apprenantRepository->findOneBy(["id" => $id]);
+        if ($student && !$student->getIsDeleted())
+        {
+            $student = $this->serializer->normalize($student,null,["groups" => [self::APPRENANT_READ]]);
+            return $this->json($student,Response::HTTP_OK);
+        }
+        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
 
     /**
@@ -115,12 +137,19 @@ class ApprenantController extends AbstractController
      *     }
      * )
      */
-    public function setStudent(User $student,EntityManagerInterface $manager,Request $request,UserRepository $userRepository,SerializerInterface $serializer,ValidatorInterface $validator,UserPasswordEncoderInterface $encoder)
+    public function setStudent($id)
     {
-        if($student->getRoles()[0] == "ROLE_APPRENANT"){
-            return $student;
+        if (!$this->isGranted("EDIT",new Apprenant()))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        $student = $this->apprenantRepository->findOneBy(["id" => $id]);
+        if ($student && $student->getIsDeleted())
+        {
+            $student = $this->serializer->normalize($student,null,["groups" => [self::APPRENANT_READ]]);
+            return $this->json($student,Response::HTTP_OK);
+        }
+        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
 
     }
 

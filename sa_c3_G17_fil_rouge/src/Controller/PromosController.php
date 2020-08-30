@@ -10,6 +10,7 @@ use App\Repository\PromosRepository;
 use App\Repository\ReferentielRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\Types\Self_;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +26,10 @@ class PromosController extends AbstractController
             $serializer,
             $validator,
             $promosRepository;
-
+    private const PROMO_READ = "promos:read",
+                ACCESS_DENIED = "Vous n'avez pas access à cette Ressource",
+                RESOURCE_NOT_FOUND = "Ressource inexistante",
+                PROMO_APPRENANT_READ = "promos:appreant:read";
     public function __construct(ValidatorInterface $validator,EntityManagerInterface $manager,SerializerInterface $serializer,PromosRepository $promosRepository)
     {
         $this->serializer = $serializer;
@@ -62,84 +66,54 @@ class PromosController extends AbstractController
 
     /**
      * @Route(
-     *     path="/api/admin/promos",
+     *     path="/api/admins/promos",
      *     methods={"GET"},
      *     name="getPromos"
      * )
     */
     public function getPromos()
     {
-        $this->canViewPromo();
-        $promos = $this->promosRepository->findBy([
-            "isDeleted" => false
-        ]);
-        $promoTab = [];
-        $promoTab["referentiels"] = [];
-        $promoTab["formateurs"] = [];
-        $promoTab["groupes"] = [];
-        foreach ($promos as $promo)
+        if (!$this->isGranted("VIEW",new Promos()))
         {
-            $promoTab["referentiels"][] = $promo->getReferentiel();
-            $formateurs = $promo->getFormateur();
-            foreach ($formateurs as $formateur)
-            {
-                $promoTab["formateurs"][] = $formateur;
-            }
-            $groupes = $promo->getGroupes();
-            foreach ($groupes as $groupe)
-            {
-                $promoTab["groupes"][] = $groupe;
-            }
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        return $this->json($promoTab,Response::HTTP_OK);
+        $promos = $this->promosRepository->findBy(["isDeleted" => false]);
+        $promos = $this->serializer->normalize($promos,null,["groups" => [self::PROMO_READ]]);
+        return $this->json($promos,Response::HTTP_OK);
     }
 
     /**
      * @Route(
-     *     path="/api/admin/promos/principal",
+     *     path="/api/admins/promos/principal",
      *     methods={"GET"},
      *     name="getGrpPrincipaux"
      * )
      */
     public function getGrpPrincipaux()
     {
-        $this->canViewPromo();
-        $promos = $this->promosRepository->findBy([
-            "isDeleted" => false
-        ]);
-        $promoTab = [];
-        $promoTab["referentiels"] = [];
-        $promoTab["apprenants"] = [];
-        $promoTab["formateurs"] = [];
-        foreach ($promos as $promo)
+        if (!$this->isGranted("VIEW",new Promos()))
         {
-            $groupes = $promo->getGroupes();
-            $promoTab["referentiels"][] = $promo->getReferentiel();
-            $promoTab["formateurs"][] = $promo->getReferentiel();
-            foreach ($groupes as $groupe)
-            {
-                if (!$groupe->getIsDeleted() && $groupe->getType() == "principal")
-                {
-                    $promoTab["apprenants"][] = $groupe->getApprenant();
-                }
-            }
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        return $this->json($promoTab,Response::HTTP_OK);
+        $promos = $this->promosRepository->findBy(["isDeleted" => false]);
+        $promos = $this->serializer->normalize($promos,null,["groups" => [self::PROMO_READ,self::PROMO_APPRENANT_READ]]);
+        return $this->json($promos,Response::HTTP_OK);
     }
 
     /**
      * @Route(
-     *     path="/api/admin/promos/apprenants/attente",
+     *     path="/api/admins/promos/apprenants/attente",
      *     methods={"GET"},
      *     name="getWaitingStudents"
      * )
      */
     public function getWaitingStudents()
     {
-        $this->canViewPromo();
-        $promos = $this->promosRepository->findBy([
-            "isDeleted" => false
-        ]);
+        if (!$this->isGranted("VIEW",new Promos()))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        }
+        $promos = $this->promosRepository->findBy(["isDeleted" => false]);
         $promoTab = [];
         $promoTab["referentiels"] = [];
         $promoTab["apprenants"] = [];
@@ -164,25 +138,29 @@ class PromosController extends AbstractController
 
     /**
      * @Route(
-     *     path="/api/admin/promos/{id}",
+     *     path="/api/admins/promos/{id}",
      *     methods={"GET"},
      *     name="getPromo"
      * )
      */
     public function getPromo($id)
     {
-        $this->canViewPromo();
+        if (!$this->isGranted("VIEW",new Promos()))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        }
         $promo = $this->promosRepository->findOneBy(["id" => $id]);
         if ($promo && !$promo->getIsDeleted())
         {
-           return $this->json($promo,Response::HTTP_OK);
+            $promo = $this->serializer->normalize($promo,null,["groups" => [self::PROMO_READ]]);
+            return $this->json($promo,Response::HTTP_OK);
         }
-        return $this->json(["message" => "Ressource inexistante."],Response::HTTP_NOT_FOUND);
+        return $this->json(["message" => Self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
 
     /**
      * @Route(
-     *     path="/api/admin/promos/{id}/principal",
+     *     path="/api/admins/promos/{id}/principal",
      *     methods={"GET"},
      *     name="getPrincipal"
      * )
@@ -211,12 +189,12 @@ class PromosController extends AbstractController
             }
             return $this->json($promoTab,Response::HTTP_OK);
         }
-        return $this->json(["message" => "Ressource inexistante."],Response::HTTP_NOT_FOUND);
+        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
 
     /**
      * @Route(
-     *     path="/api/admin/promos/{id}/referentiels",
+     *     path="/api/admins/promos/{id}/referentiels",
      *     methods={"GET"},
      *     name="getReferentiel"
      * )
@@ -249,7 +227,7 @@ class PromosController extends AbstractController
 
     /**
      * @Route(
-     *     path="/api/admin/promos/{id}/apprenants/attente",
+     *     path="/api/admins/promos/{id}/apprenants/attente",
      *     methods={"GET"},
      *     name="getWaitingStudent"
      * )
@@ -282,7 +260,7 @@ class PromosController extends AbstractController
 
     /**
      * @Route(
-     *     path="/api/admin/promos/{idPromo}/groupes/{idGroupe}/apprenants",
+     *     path="/api/admins/promos/{idPromo}/groupes/{idGroupe}/apprenants",
      *     methods={"GET"},
      *     name="getStudentsInPromo"
      * )
@@ -316,7 +294,7 @@ class PromosController extends AbstractController
 
     /**
      * @Route(
-     *     path="/api/admin/promos/{id}/formateurs",
+     *     path="/api/admins/promos/{id}/formateurs",
      *     methods={"GET"},
      *     name="getFormateurInPromo"
      * )
@@ -347,7 +325,7 @@ class PromosController extends AbstractController
     
     /**
      * @Route(
-     *     path="/api/admin/promos",
+     *     path="/api/admins/promos",
      *     methods={"POST"},
      *     name="addPromo"
      * )
@@ -443,7 +421,7 @@ class PromosController extends AbstractController
 
     /**
      * @Route(
-     *     path="/api/admin/promos/{id}/formateurs",
+     *     path="/api/admins/promos/{id}/formateurs",
      *     methods={"PUT"},
      *     name="setFormateurInPromo"
      * )
@@ -513,7 +491,7 @@ class PromosController extends AbstractController
 
     /**
      * @Route(
-     *     path="/api/admin/promos/{id}",
+     *     path="/api/admins/promos/{id}",
      *     methods={"PUT"},
      *     name="setPromo"
      * )
@@ -589,7 +567,7 @@ class PromosController extends AbstractController
 
     /**
      * @Route(
-     *     path="/api/admin/promos/{idPromo}/groupes/{idGroupe}",
+     *     path="/api/admins/promos/{idPromo}/groupes/{idGroupe}",
      *     methods={"PUT"},
      *     name="setStatutGroupe"
      * )
@@ -668,7 +646,9 @@ class PromosController extends AbstractController
     {
         $promo = new Promos();
         if (!$this->isGranted("VIEW",$promo))
+        {
             return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
+        }
     }
 
     private function canSetPromo()

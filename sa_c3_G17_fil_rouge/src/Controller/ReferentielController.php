@@ -3,106 +3,104 @@
 namespace App\Controller;
 
 use App\Entity\Referentiel;
-use App\Entity\GroupeCompetence;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\ReferentielRepository;
 use App\Repository\GroupeCompetenceRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use ApiPlatform\Core\Validator\ValidatorInterface;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class ReferentielController extends AbstractController
 {
+    private $serializer,
+            $referentielRepository;
+
+    private const ACCESS_DENIED = "Vous n'avez pas accés à cette ressource.",
+        RESOURCE_NOT_FOUND = "Ressource inexistante.",
+        REFERENTIEL_READ = "referentiel:read",
+        REFERENTIEL_GROUPE = "refGroupe:read";
+
+    public function __construct (SerializerInterface $serializer,ReferentielRepository $referentielRepository)
+    {
+        $this->serializer = $serializer;
+        $this->referentielRepository = $referentielRepository;
+    }
     /**
      * @Route(
-     *     path="/api/admin/referentiels",
+     *     path="/api/admins/referentiels",
      *     methods={"GET"},
      *     name="getReferentiels"
      * )
      */
-    public function getReferentiels(ReferentielRepository $referentielRepository)
+    public function getReferentiels()
     {
-        if(!($this->isGranted("ROLE_FORMATEUR")))
-            return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
-        $referentiel = $referentielRepository->findBy([
-            "isDeleted" => false
-        ]);
-        return $this->json($referentiel,Response::HTTP_OK);
+        if(!($this->isGranted("VIEW",new Referentiel())))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        }
+        $referentiels = $this->referentielRepository->findBy(["isDeleted" => false]);
+        $referentiels = $this->serializer->normalize($referentiels,null,["groups" => [self::REFERENTIEL_READ]]);
+        return $this->json($referentiels,Response::HTTP_OK);
     }
 
     /**
      * @Route(
-     *     path="/api/admin/referentiels/grpecompetences",
+     *     path="/api/admins/referentiels/grpecompetences",
      *     methods={"GET"},
      *     name="get_grpecompetences"
      * )
      */
-    public function getGroupeCompetence(ReferentielRepository $referentielRepository)
+    public function getGroupeCompetence()
     {
-        $referentiel= new Referentiel();
-        if(!($this->isGranted("VIEW",$referentiel)))
-            return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
-        $referentiel = $referentielRepository->findBy([
-            "isDeleted" => false
-        ]);
-        $groupeCompetences = [];
-        $size = count($referentiel);
-        for ($i = 0;$i < $size; $i++){
-            if(!$referentiel[$i]->getIsDeleted()){
-                $groupeCompetence = $referentiel[$i]->getGroupeCompetence();
-                $length = count($groupeCompetence);
-                for ($j = 0; $j < $length; $j++){
-                    $skill = $groupeCompetence[$j];
-                    if(!$skill->getIsDeleted()){
-                        $groupeCompetences[] = $skill;
-                    }
-                }
-            }
+        if(!($this->isGranted("VIEW",new Referentiel())))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        return $this->json($groupeCompetences,Response::HTTP_OK);
+        $referentiels = $this->referentielRepository->findBy(["isDeleted" => false]);
+        $referentiels = $this->serializer->normalize($referentiels,null,["groups" => [self::REFERENTIEL_READ,self::REFERENTIEL_GROUPE]]);
+        return $this->json($referentiels,Response::HTTP_OK);
     }
 
      /**
      * @Route(
-     *     path="/api/admin/referentiels",
+     *     path="/api/admins/referentiels",
      *     methods={"POST"},
      *     name="addReferentiel"
      * )
      */
-    public function addReferentiel(GroupeCompetenceRepository $grpeCompetenceRepository,TokenStorageInterface $tokenStorage,Request $request,EntityManagerInterface $manager,SerializerInterface $serializer,ValidatorInterface $validator)
+    public function addReferentiel(GroupeCompetenceRepository $grpeCompetenceRepository,TokenStorageInterface $tokenStorage,Request $request,EntityManagerInterface $manager,ValidatorInterface $validator)
     {
-        $referentiel = new Referentiel();
-        if(!($this->isGranted("EDIT",$referentiel)))
-            return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
-        $referentielTab = $request->request->all();
-        $programme = $request->files->get("programme");
-        $programme = fopen($programme->getRealPath(),"rb"); 
-        $referentielTab["programme"] = $programme;
-        $grpeCompetences = $referentielTab["groupeCompetence"];
+
+        if(!($this->isGranted("EDIT",new Referentiel())))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        }
+        $referentielJson= $request->getContent();
+        $referentielTab = $this->serializer->decode($referentielJson,"json");
+        $grpeCompetences = isset($referentielTab["groupeCompetence"]) ? $referentielTab["groupeCompetence"] : [];
         $referentielTab["groupeCompetence"] = [];
-        $referentielObj = $serializer->denormalize($referentielTab, "App\Entity\Referentiel");
-        $referentielObj->setLibelle($referentielTab["libelle"]);
-        $referentielObj->setProgramme($referentielTab["programme"]);
-        $referentielObj->setPresentation($referentielTab["presentation"]);
-        $referentielObj->setCritereEvaluation($referentielTab["critereEvaluation"]);
-        $referentielObj->setCritereAdmission($referentielTab["critereAdmission"]);
-        $referentielObj->setIsDeleted(false);
-        if (!$this->addgrpeComptenceToRef($grpeCompetences,$serializer,$validator,$referentielObj,$manager,$grpeCompetenceRepository)) {
+        $referentielObj = $this->serializer->denormalize($referentielTab, "App\Entity\Referentiel");
+        $errors = $validator->validate($referentielObj);
+        if(count($errors))
+        {
+            return $this->json($errors,Response::HTTP_BAD_REQUEST);
+        }
+
+        if (!count($grpeCompetences)) {
             return $this->json(["message" => "Ce groupe de competences n'existe pas."],Response::HTTP_BAD_REQUEST);
         }
-        $referentielObj = $this->addgrpeComptenceToRef($grpeCompetences,$serializer,$validator,$referentielObj,$manager,$grpeCompetenceRepository);
-        $errors = (array)$validator->validate($referentielObj);
-        if(count($errors))
-            return $this->json($errors,Response::HTTP_BAD_REQUEST);
+        $referentielObj = $this->addgrpeComptenceToRef($grpeCompetences,$this->serializer,$validator,$referentielObj,$manager,$grpeCompetenceRepository);
         if (!count($grpeCompetences))
+        {
             return $this->json(["message" => "Ajoutez au moins un groupe de competences existant à cet referentiel."],Response::HTTP_BAD_REQUEST);
+        }
         $manager->persist($referentielObj);
         $manager->flush();
-        fclose($programme);
+        $referentielObj = $this->serializer->normalize($referentielObj,null,["groups" => [self::REFERENTIEL_GROUPE]]);
         return $this->json($referentielObj,Response::HTTP_CREATED);
     }
 
@@ -139,88 +137,82 @@ class ReferentielController extends AbstractController
 
      /**
      * @Route(
-     *     path="/api/admin/referentiels/{id<\d+>}",
+     *     path="/api/admins/referentiels/{id<\d+>}",
      *     methods={"GET"},
      *     name="getReferentiel"
      * )
      */
-    public function getReferentiel($id,ReferentielRepository $referentielRepository)
+    public function getReferentiel($id)
     {
-        $referentiel = new Referentiel();
-        if(!($this->isGranted("VIEW",$referentiel)))
-            return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
-        $referentiel = $referentielRepository->findOneBy([
-            "id" => $id
-        ]);
-        if($referentiel){
-            if (!$referentiel->getIsDeleted())
-                return $this->json($referentiel,Response::HTTP_OK);
+        if(!($this->isGranted("VIEW",new Referentiel())))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        return $this->json(["message" => "Ressource inexistante"],Response::HTTP_NOT_FOUND);
+        $referentiel = $this->referentielRepository->findOneBy(["id" => $id]);
+        if($referentiel && !$referentiel->getIsDeleted()){
+            $referentiel = $this->serializer->normalize($referentiel,null,["groups" => [self::REFERENTIEL_READ]]);
+            return $this->json($referentiel,Response::HTTP_OK);
+        }
+        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
      /**
      * @Route(
-     *     path="/api/admin/referentiels/{id<\d+>}/grpecompetences",
+     *     path="/api/admins/referentiels/{id<\d+>}/grpecompetences",
      *     methods={"GET"},
      *     name="getGroupeCompetencesInReferentiel"
      * )
      */
-    public function getGroupeCompetencesInReferentiel($id,ReferentielRepository $referentielRepository)
+    public function getGroupeCompetencesInReferentiel($id)
     {
-        $referentiel = new Referentiel();
-        if(!($this->isGranted("VIEW",$referentiel)))
-            return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
-        $referentiel = $referentielRepository->findOneBy([
-            "id" => $id
-        ]);
-        if($referentiel){
-            if (!$referentiel->getIsDeleted()){
-                $groupeCompetences = $referentiel->getGroupeCompetence();
-                return $this->json($groupeCompetences,Response::HTTP_OK);
-            }
+        if(!($this->isGranted("VIEW",new Referentiel())))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        return $this->json(["message" => "Ressource inexistante"],Response::HTTP_NOT_FOUND);
+        $referentiel = $this->referentielRepository->findOneBy(["id" => $id]);
+        if($referentiel && !$referentiel->getIsDeleted()){
+            $referentiel = $this->serializer->normalize($referentiel,null,["groups" => [self::REFERENTIEL_READ]]);
+            return $this->json($referentiel,Response::HTTP_OK);
+        }
+        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
 
         /**
      * @Route(
-     *     path="/api/admin/referentiels/{id}",
+     *     path="/api/admins/referentiels/{id}",
      *     methods={"PUT"},
      *     name="set_referentiel"
      * )
      */
-    public function setReferentiel($id,EntityManagerInterface $manager,ReferentielRepository $referentielRepository,GroupeCompetenceRepository $groupeCompetenceRepository,Request $request,SerializerInterface $serializer,ValidatorInterface $validator)
+    public function setReferentiel($id,EntityManagerInterface $manager,GroupeCompetenceRepository $groupeCompetenceRepository,Request $request,ValidatorInterface $validator)
     {
-        $referentiel = new Referentiel();
-        if(!$this->isGranted("EDIT",$referentiel))
-            return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
-        $referentielTab = $request->request->all();
-        $grpeCompetences = $referentielTab["groupeCompetence"];
+        if(!$this->isGranted("EDIT",new Referentiel()))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        }
+        $referentielJson = $request->getContent();
+        $referentielTab = $this->serializer->decode($referentielJson,"json");
+        $grpeCompetences = isset($referentielTab["groupeCompetence"]) ? $referentielTab["groupeCompetence"] : [];
         $referentielTab["groupeCompetence"] = [];
-        $referentielObj = $serializer->denormalize($referentielTab,"App\Entity\Referentiel");
-        $referentiel = $referentielRepository->findOneBy([
-            "id" => $id
-        ]);
+        $referentielObj = $this->serializer->denormalize($referentielTab,"App\Entity\Referentiel");
+        $referentiel = $this->referentielRepository->findOneBy(["id" => $id]);
         $referentielObj->setId((int)$id)
             ->SetIsDeleted(false);
-        if($referentiel)
+        if($referentiel && !$referentiel->getIsDeleted())
         {
-            if(!$referentiel->getIsDeleted())
-            {
-                $referentielObj = $this->addgrpeComptenceToRef($grpeCompetences,$serializer,$validator,$referentielObj,$manager,$groupeCompetenceRepository);
-                if($referentiel != $referentielObj){
-                    $grpeCompetences = $referentiel->getGroupeCompetence();
-                    $referentiel = $this->removeGroupeCompetence($referentiel,$grpeCompetences);
-                    $groupeComptencesObj = $referentielObj->getGroupeCompetence();
-                    $referentiel = $this->addGroupeCompetence($referentiel,$groupeComptencesObj);
-                    $referentiel->setLibelle($referentielObj->getLibelle())
-                                     ->setPresentation($referentielObj->getPresentation());
-                    $manager->flush();
-                }
-                return $this->json($referentiel,Response::HTTP_OK);
+            $referentielObj = $this->addgrpeComptenceToRef($grpeCompetences,$this->serializer,$validator,$referentielObj,$manager,$groupeCompetenceRepository);
+            if($referentiel != $referentielObj){
+                $grpeCompetences = $referentiel->getGroupeCompetence();
+                $referentiel = $this->removeGroupeCompetence($referentiel,$grpeCompetences);
+                $groupeComptencesObj = $referentielObj->getGroupeCompetence();
+                $referentiel = $this->addGroupeCompetence($referentiel,$groupeComptencesObj);
+                $referentiel->setLibelle($referentielObj->getLibelle())
+                    ->setPresentation($referentielObj->getPresentation());
+                $manager->flush();
             }
+            $referentiel = $this->serializer->normalize($referentiel,null,["groups" => [self::REFERENTIEL_READ]]);
+            return $this->json($referentiel,Response::HTTP_OK);
         }
-        return $this->json(["message" => "Ressource inexistante"],Response::HTTP_NOT_FOUND);
+        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
     private function removeGroupeCompetence(Referentiel $referentiel,$grpeCompetences)
     {
@@ -232,27 +224,25 @@ class ReferentielController extends AbstractController
 
         /**
      * @Route(
-     *     path="/api/admin/referentiels/{id<\d+>}",
+     *     path="/api/admins/referentiels/{id<\d+>}",
      *     methods={"DELETE"},
      *     name="delGroupeCompetence"
      * )
      */
     public function delReferentiel($id,EntityManagerInterface $manager,ReferentielRepository $referentielRepository)
     {
-        $referentiel = new Referentiel();
-        if(!$this->isGranted("DEL",$referentiel))
-            return $this->json(["message" => "Vous ne pouvez pas supprimer cette Ressource"],Response::HTTP_FORBIDDEN);
-        $referentiel = $referentielRepository->findOneBy([
-            "id" => $id
-        ]);
-        if ($referentiel){
-            if(!$referentiel->getIsDeleted()){
-                $referentiel->setIsDeleted(true);
-                $manager->flush();
-                return $this->json($referentiel,Response::HTTP_OK);
-            }
+        if(!$this->isGranted("DEL",new Referentiel()))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        return $this->json(["message" => "Ressource inexistante"],Response::HTTP_NOT_FOUND);
+        $referentiel = $referentielRepository->findOneBy(["id" => $id]);
+        if ($referentiel && !$referentiel->getIsDeleted()){
+            $referentiel->setIsDeleted(true);
+            $manager->flush();
+            $referentiel = $this->serializer->normalize($referentiel,null,["groups" => [self::REFERENTIEL_READ]]);
+            return $this->json($referentiel,Response::HTTP_OK);
+        }
+        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
 
 }

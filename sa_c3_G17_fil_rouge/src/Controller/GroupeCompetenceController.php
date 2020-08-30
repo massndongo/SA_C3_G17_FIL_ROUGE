@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use ApiPlatform\Core\Validator\ValidatorInterface;
-use App\Entity\Competence;
 use App\Entity\GroupeCompetence;
 use App\Repository\CompetenceRepository;
 use App\Repository\GroupeCompetenceRepository;
@@ -17,82 +16,80 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class GroupeCompetenceController extends AbstractController
 {
+    private $groupeCompetenceRepository,
+            $serializer;
+    private const ACCESS_DENIED = "Vous n'avez pas access à cette Ressource",
+                RESOURCE_NOT_FOUND = "Ressource inexistante",
+                GROUPE_COMPETENCE_READ = "grpecompetence:read_m",
+                COMPETENCE_READ = "grpecompetence:competence:read";
+
+    public function __construct(GroupeCompetenceRepository $groupeCompetenceRepository,SerializerInterface $serializer)
+    {
+        $this->groupeCompetenceRepository = $groupeCompetenceRepository;
+        $this->serializer = $serializer;
+    }
+
     /**
      * @Route(
-     *     path="/api/admin/grpecompetences",
+     *     path="/api/admins/grpecompetences",
      *     methods={"GET"},
      *     name="getGroupeCompetences"
      * )
      */
-    public function getGroupeCompetences(GroupeCompetenceRepository $groupeCompetenceRepository)
+    public function getGroupeCompetences()
     {
-        if(!($this->isGranted("ROLE_FORMATEUR")))
-            return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
-        $groupeCompetences = $groupeCompetenceRepository->findBy([
-            "isDeleted" => false
-        ]);
+        if(!($this->isGranted("VIEW",new GroupeCompetence())))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+        }
+        $groupeCompetences = $this->groupeCompetenceRepository->findBy(["isDeleted" => false]);
+        $groupeCompetences = $this->serializer->normalize($groupeCompetences,null,["groups" => [self::GROUPE_COMPETENCE_READ]]);
         return $this->json($groupeCompetences,Response::HTTP_OK);
     }
 
     /**
      * @Route(
-     *     path="/api/admin/grpecompetences/{id<\d+>}/competences",
+     *     path="/api/admins/grpecompetences/{id<\d+>}/competences",
      *     methods={"GET"},
      *     name="getCompetencesInGroupeCompetence"
      * )
      */
-    public function getCompetencesInGroupeCompetence($id,GroupeCompetenceRepository $groupeCompetenceRepository)
+    public function getCompetencesInGroupeCompetence($id)
     {
-        $groupeCompetence = new GroupeCompetence();
-        if(!($this->isGranted("VIEW",$groupeCompetence)))
-            return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
-        $groupeCompetence = $groupeCompetenceRepository->findOneBy([
-            "id" => $id
-        ]);
-        if($groupeCompetence){
-            if (!$groupeCompetence->getIsDeleted()){
-                $competences = $groupeCompetence->getCompetences();
-                return $this->json($competences,Response::HTTP_OK);
-            }
+        if(!($this->isGranted("VIEW",new GroupeCompetence())))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        return $this->json(["message" => "Ressource inexistante"],Response::HTTP_NOT_FOUND);
+        $groupeCompetence = $this->groupeCompetenceRepository->findOneBy(["id" => $id]);
+        if($groupeCompetence && !$groupeCompetence->getIsDeleted())
+        {
+            $groupeCompetence = $this->serializer->normalize($groupeCompetence,null,["groups" => [self::COMPETENCE_READ]]);
+            return $this->json($groupeCompetence,Response::HTTP_OK);
+        }
+        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
 
     /**
      * @Route(
-     *     path="/api/admin/grpecompetences/competences",
+     *     path="/api/admins/grpecompetences/competences",
      *     methods={"GET"},
      *     name="getCompetences"
      * )
      */
-    public function getCompetences(GroupeCompetenceRepository $groupeCompetenceRepository)
+    public function getCompetences()
     {
-        $groupeCompetence = new GroupeCompetence();
-        if(!($this->isGranted("VIEW",$groupeCompetence)))
-            return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
-        $groupeCompetence = $groupeCompetenceRepository->findBy([
-            "isDeleted" => false
-        ]);
-        $competences = [];
-        $size = count($groupeCompetence);
-        for ($i = 0;$i < $size; $i++){
-//            if(!$groupeCompetence[$i]->getIsDeleted()){
-                $competence = $groupeCompetence[$i]->getCompetences();
-                $length = count($competence);
-                for ($j = 0; $j < $length; $j++){
-                    $skill = $competence[$j];
-                    if(!$skill->getIsDeleted()){
-                        $competences[] = $skill;
-                    }
-                }
-//            }
+        if(!($this->isGranted("VIEW",new GroupeCompetence())))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        return $this->json($competences,Response::HTTP_OK);
+        $groupeCompetences = $this->groupeCompetenceRepository->findBy(["isDeleted" => false]);
+        $groupeCompetences = $this->serializer->normalize($groupeCompetences,null,["groups" => [self::COMPETENCE_READ]]);
+        return $this->json($groupeCompetences,Response::HTTP_OK);
     }
     
     /**
      * @Route(
-     *     path="/api/admin/grpecompetences",
+     *     path="/api/admins/grpecompetences",
      *     methods={"POST"},
      *     name="addGroupeCompetence"
      * )
@@ -123,92 +120,94 @@ class GroupeCompetenceController extends AbstractController
 
     /**
      * @Route(
-     *     path="/api/admin/grpecompetences/{id<\d+>}",
+     *     path="/api/admins/grpecompetences/{id<\d+>}",
      *     methods={"GET"},
      *     name="getGroupeCompetence"
      * )
      */
-    public function getGroupeCompetence($id,GroupeCompetenceRepository $groupeCompetenceRepository)
+    public function getGroupeCompetence($id)
     {
-        $groupeCompetence = new GroupeCompetence();
-        if(!($this->isGranted("VIEW",$groupeCompetence)))
-            return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
-        $groupeCompetence = $groupeCompetenceRepository->findOneBy([
-            "id" => $id
-        ]);
-        if($groupeCompetence){
-            if (!$groupeCompetence->getIsDeleted())
-                return $this->json($groupeCompetence,Response::HTTP_OK);
+        if(!($this->isGranted("VIEW",new GroupeCompetence())))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        return $this->json(["message" => "Ressource inexistante"],Response::HTTP_NOT_FOUND);
+        $groupeCompetence = $this->groupeCompetenceRepository->findOneBy(["id" => $id]);
+        if($groupeCompetence && !$groupeCompetence->getIsDeleted()){
+            $groupeCompetence = $this->serializer->normalize($groupeCompetence,null,["groups" => [self::GROUPE_COMPETENCE_READ]]);
+            return $this->json($groupeCompetence,Response::HTTP_OK);
+        }
+        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
 
     /**
      * @Route(
-     *     path="/api/admin/grpecompetences/{id<\d+>}",
+     *     path="/api/admins/grpecompetences/{id<\d+>}",
      *     methods={"PUT"},
      *     name="setGroupeCompetence"
      * )
      */
-    public function setGroupeCompetence($id,EntityManagerInterface $manager,GroupeCompetenceRepository $groupeCompetenceRepository,CompetenceRepository $competenceRepository,Request $request,SerializerInterface $serializer,ValidatorInterface $validator)
+    public function setGroupeCompetence($id,EntityManagerInterface $manager,CompetenceRepository $competenceRepository,Request $request,ValidatorInterface $validator)
     {
-        $groupeCompetence = new GroupeCompetence();
-        if(!$this->isGranted("EDIT",$groupeCompetence))
-            return $this->json(["message" => "Vous n'avez pas access à cette Ressource"],Response::HTTP_FORBIDDEN);
-        $groupeCompetenceJson = $request->getContent();
-        $groupeCompetenceTab = $serializer->decode($groupeCompetenceJson,"json");
-        $competences = $groupeCompetenceTab["competences"];
-        $groupeCompetenceTab["competences"] = [];
-        $groupeCompetenceObj = $serializer->denormalize($groupeCompetenceTab,"App\Entity\GroupeCompetence");
-        $groupeCompetence = $groupeCompetenceRepository->findOneBy([
-            "id" => $id
-        ]);
-        $groupeCompetenceObj->setId((int)$id)
-            ->setAdministrateur($groupeCompetence->getAdministrateur())
-            ->SetIsDeleted(false);
-        if($groupeCompetence)
+        if(!$this->isGranted("EDIT",new GroupeCompetence()))
         {
-            if(!$groupeCompetence->getIsDeleted())
-            {
-                $groupeCompetenceObj = $this->addComptenceToGroupe($competences,$serializer,$validator,$groupeCompetenceObj,$manager,$competenceRepository);
-                if($groupeCompetence != $groupeCompetenceObj){
-                    $comptences = $groupeCompetence->getCompetences();
-                    $groupeCompetence = $this->removeCompetence($groupeCompetence,$comptences);
-                    $comptencesObj = $groupeCompetenceObj->getCompetences();
-                    $groupeCompetence = $this->addCompetence($groupeCompetence,$comptencesObj);
-                    $groupeCompetence->setLibelle($groupeCompetenceObj->getLibelle())
-                                     ->setDescriptif($groupeCompetenceObj->getDescriptif());
-                    $manager->flush();
-                }
-                return $this->json($groupeCompetence,Response::HTTP_OK);
-            }
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        return $this->json(["message" => "Ressource inexistante"],Response::HTTP_NOT_FOUND);
+        $groupeCompetenceJson = $request->getContent();
+        $groupeCompetenceTab = $this->serializer->decode($groupeCompetenceJson,"json");
+        $competences = isset($groupeCompetenceTab["competences"]) ? $groupeCompetenceTab["competences"] : [];
+        $groupeCompetenceTab["competences"] = [];
+        $groupeCompetenceObj = $this->serializer->denormalize($groupeCompetenceTab,"App\Entity\GroupeCompetence");
+        $groupeCompetence = $this->groupeCompetenceRepository->findOneBy(["id" => $id]);
+        $groupeCompetenceObj->setId((int)$id)
+                            ->setAdministrateur($groupeCompetence->getAdministrateur())
+                            ->SetIsDeleted(false);
+        if($groupeCompetence && !$groupeCompetence->getIsDeleted())
+        {
+            $groupeCompetenceObj = $this->addComptenceToGroupe($competences,$this->serializer,$validator,$groupeCompetenceObj,$manager,$competenceRepository);
+            if($groupeCompetence != $groupeCompetenceObj){
+                $comptences = $groupeCompetence->getCompetences();
+                $groupeCompetence = $this->removeCompetence($groupeCompetence,$comptences);
+                $comptencesObj = $groupeCompetenceObj->getCompetences();
+                $groupeCompetence = $this->addCompetence($groupeCompetence,$comptencesObj);
+                $groupeCompetence->setLibelle($groupeCompetenceObj->getLibelle())
+                                ->setDescriptif($groupeCompetenceObj->getDescriptif());
+                $manager->flush();
+            }
+            $groupeCompetence = $this->serializer->normalize($groupeCompetence,null,["groups" => [self::GROUPE_COMPETENCE_READ,self::COMPETENCE_READ]]);
+            return $this->json($groupeCompetence,Response::HTTP_OK);
+
+        }
+        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
 
     /**
      * @Route(
-     *     path="/api/admin/grpecompetences/{id<\d+>}",
+     *     path="/api/admins/grpecompetences/{id<\d+>}",
      *     methods={"DELETE"},
-     *     name="delGroupeCompetence"
+     *     name="delGroupeCompetence",
+     *     defaults={
+     *          "_api_resource_class"=GroupeCompetence::class,
+     *          "_api_collection_operation_name"="delGroupeCompetence",
+     *          "_controller"="App\Controller\BriefController::delGroupeCompetence",
+     *          "_api_receive"=false,
+     *     }
      * )
      */
-    public function delGroupeCompetence($id,GroupeCompetenceRepository $groupeCompetenceRepository,EntityManagerInterface $manager)
+    public function delGroupeCompetence($id,EntityManagerInterface $manager)
     {
-        $groupeCompetence = new GroupeCompetence();
-        if(!$this->isGranted("DELETE",$groupeCompetence))
-            return $this->json(["message" => "Vous ne pouvez pas supprimer cette Ressource"],Response::HTTP_FORBIDDEN);
-        $groupeCompetence = $groupeCompetenceRepository->findOneBy([
-            "id" => $id
-        ]);
-        if ($groupeCompetence){
-            if(!$groupeCompetence->getIsDeleted()){
-                $groupeCompetence->setIsDeleted(true);
-                $manager->flush();
-                return $this->json($groupeCompetence,Response::HTTP_OK);
-            }
+        dd("hi");
+        if(!$this->isGranted("DELETE",new GroupeCompetence()))
+        {
+            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        return $this->json(["message" => "Ressource inexistante"],Response::HTTP_NOT_FOUND);
+        $groupeCompetence = $this->groupeCompetenceRepository->findOneBy(["id" => $id]);
+        if ($groupeCompetence && !$groupeCompetence->getIsDeleted()){
+            $groupeCompetence->setIsDeleted(true);
+            $manager->flush();
+            $groupeCompetence = $this->serializer->normalize($groupeCompetence,null,["groups" => [self::GROUPE_COMPETENCE_READ]]);
+            return $this->json($groupeCompetence,Response::HTTP_OK);
+        }
+        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
     
     private function removeCompetence(GroupeCompetence $groupeCompetence,$competences)
@@ -235,9 +234,7 @@ class GroupeCompetenceController extends AbstractController
             $id = isset($comptence["id"]) ? (int)$comptence["id"] : null;
             if($id)
             {
-                $skill = $competenceRepository->findOneBy([
-                    "id" => $id
-                ]);
+                $skill = $competenceRepository->findOneBy(["id" => $id]);
                 if(!$skill)
                     return $this->json(["message" => "La competence avec l'id : $id, n'existe pas."],Response::HTTP_NOT_FOUND);
                 $groupeCompetenceObj->addCompetence($skill);

@@ -16,6 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "method"="GET",
  *              "path"="/formateurs/{id}",
  *              "requirements"={"id"="\d+"},
+ *              "normalization_context" = {"groups"={"formateur:read"}},
  *              "security"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource"
  *          },
@@ -23,6 +24,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "method"="PUT",
  *              "path"="/formateurs/{id}",
  *              "requirements"={"id"="\d+"},
+ *              "normalization_context" = {"groups"={"formateur:read"}},
  *              "security"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
  *              "security_message"="Vous n'avez pas access à cette Ressource"
  *          },
@@ -31,7 +33,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          "get_formateurs"={
  *              "method"="GET",
  *              "path"="/formateurs/",
- *              "security"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
+ *              "normalization_context" = {"groups"={"formateur:read"}},
+ *              "security"="is_granted('ROLE_FORMATEUR')",
  *              "security_message"="Vous n'avez pas access à cette Ressource"
  *          },
  *     }
@@ -45,7 +48,7 @@ class Formateur extends User
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups("promos:read")
+     * @Groups({"promos:read"})
      */
     protected $id;
 

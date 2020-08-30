@@ -12,8 +12,8 @@ class ApprenantVoter extends Voter
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, ['EDIT', 'VIEW'])
-            && $subject instanceof \App\Entity\BlogPost;
+        return in_array($attribute, ['EDIT', 'VIEW','ADD'])
+            && $subject instanceof \App\Entity\Apprenant;
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
@@ -29,13 +29,13 @@ class ApprenantVoter extends Voter
             case 'EDIT':
                 // logic to determine if the user can EDIT
                 // return true or false
-                return $user->getRoles()[0] === "ROLE_ADMIN";
-                break;
+                return $user->getRoles()[0] === "ROLE_ADMIN" || $user->getRoles()[0] === "ROLE_FORMATEUR";
             case 'VIEW':
                 // logic to determine if the user can VIEW
                 // return true or false
-                return $user->getRoles()[0] === "ROLE_ADMIN" || $user->getRoles()[0] === "ROLE_FORMATEUR";
-                break;
+                return ($user->getRoles()[0] === "ROLE_ADMIN" || $user->getRoles()[0] === "ROLE_FORMATEUR") || ($user->getRoles()[0] === "ROLE_APPRENANT" || $user->getRoles()[0] === "ROLE_CM");
+            case 'ADD':
+                return $user->getRoles()[0] === "ROLE_ADMIN" ;
         }
 
         return false;

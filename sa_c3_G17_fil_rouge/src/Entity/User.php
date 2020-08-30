@@ -25,21 +25,22 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"user:read","promos:read","getBriefsInGroupe:read","apprenant:read"})
+     * @Groups({"promos:read","getBriefsInGroupe:read","apprenant:read",
+     *     "formateur:read","profilUsers:read","promos:appreant:read"})
      */
     protected $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank(message="Le username est obligatoire")
-     * @Groups({"user:read","promos:read","getBriefsInGroupe:read","apprenant:read"})
+     * @Groups({"promos:read","getBriefsInGroupe:read","apprenant:read",
+     *     "formateur:read","profilUsers:read","promos:appreant:read"})
      *
      */
     protected $username;
 
     /**
      *
-     * @Groups({"user:read"})
     */
     protected $roles = [];
 
@@ -47,7 +48,6 @@ class User implements UserInterface
      * @var string The hashed password
      * @ORM\Column(type="string")
      * @Assert\NotBlank(message="Le password est obligatoire")
-     * @Groups({"user:read"})
      */
     protected $password;
 
@@ -55,7 +55,6 @@ class User implements UserInterface
      * @ORM\ManyToOne(targetEntity=Profil::class, inversedBy="users")
      * @ORM\JoinColumn(nullable=false)
      * @ApiSubresource()
-     * @Groups({"user:read"})
      */
     private $profil;
 
@@ -72,21 +71,24 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"user:read","promos:read","getBriefsInGroupe:read","apprenant:read"})
+     * @Groups({"promos:read","getBriefsInGroupe:read","apprenant:read",
+     *     "formateur:read","profilUsers:read","promos:appreant:read"})
      * @Assert\NotBlank(message="Le prenom est obligatoire")
      */
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"user:read","promos:read","getBriefsInGroupe:read","apprenant:read"})
+     * @Groups({"promos:read","getBriefsInGroupe:read","apprenant:read",
+     *     "formateur:read","profilUsers:read","promos:appreant:read"})
      * @Assert\NotBlank(message="Le nom est obligatoire")
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
-     * @Groups({"user:read","promos:read","getBriefsInGroupe:read","apprenant:read"})
+     * @Groups({"promos:read","getBriefsInGroupe:read","apprenant:read",
+     *     "formateur:read","profilUsers:read","promos:appreant:read"})
      * @Assert\NotBlank(message="L'email est obligatoire")
      * @Assert\Email(
      *     message="Veuillez saisir un email valide."

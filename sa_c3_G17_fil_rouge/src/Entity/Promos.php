@@ -12,29 +12,32 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
- *     normalizationContext={"groups"={"promos:read"}},
  *     collectionOperations={
  *          "get_promos" = {
  *              "method"="GET",
- *              "path"="/admin/promos",
+ *              "path"="/admins/promos",
+ *              "normalization_context"={"groups"={"promos:read"}},
  *              "security"="is_granted('ROLE_FORMATEUR')",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *           },
  *          "get_principal" = {
  *              "method"="GET",
- *              "path"="/admin/promos/principal",
+ *              "path"="/admins/promos/principal",
+ *              "normalization_context"={"groups"={"promos:read","promos:appreant:read"}},
  *              "security"="is_granted('ROLE_FORMATEUR')",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *           },
  *          "get_attente" = {
  *              "method"="GET",
- *              "path"="/admin/promos/apprenants/attente",
+ *              "path"="/admins/promos/apprenants/attente",
+ *              "normalization_context"={"groups"={"promos:read"}},
  *              "security"="is_granted('ROLE_FORMATEUR')",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *           },
  *          "add_promo" = {
  *              "method"="POST",
- *              "path"="/admin/promos",
+ *              "path"="/admins/promos",
+ *              "normalization_context"={"groups"={"promos:read"}},
  *              "security"="is_granted('ROLE_FORMATEUR')",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *           }
@@ -42,13 +45,15 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     itemOperations={
  *          "get_promo" = {
  *              "method"="GET",
- *              "path"="/admin/promos/{id}",
+ *              "path"="/admins/promos/{id}",
+ *              "normalization_context"={"groups"={"promos:read"}},
  *              "security"="is_granted('VIEW',object)",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *           },
  *          "get_principal" = {
  *              "method"="GET",
- *              "path"="/admin/promos/{id}/principal    ",
+ *              "path"="/admins/promos/{id}/principal",
+ *              "normalization_context"={"groups"={"promos:read"}},
  *              "security"="is_granted('VIEW',object)",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *           },
@@ -56,18 +61,21 @@ use Symfony\Component\Validator\Constraints as Assert;
  *              "method" = "PUT",
  *              "path" = "admin/promos/{id}",
  *              "requirements"={"id"="\d+"},
+ *              "normalization_context"={"groups"={"promos:read"}},
  *              "security"="is_granted('SET',object)",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
  *          "setFormateur" = {
  *              "method" = "PUT",
- *              "path" = "/admin/promos/{id}/formateurs",
+ *              "path" = "/admins/promos/{id}/formateurs",
+ *              "normalization_context"={"groups"={"promos:read"}},
  *              "security"="is_granted('SET',object)",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
  *          "setStatutGroupe" = {
  *              "method" = "PUT",
- *              "path" = "/admin/promos/{idPromo}/groupes/{idGroupe}",
+ *              "path" = "/admins/promos/{idPromo}/groupes/{idGroupe}",
+ *              "normalization_context"={"groups"={"promos:read"}},
  *              "security"="is_granted('SET',object)",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          }
@@ -183,13 +191,11 @@ class Promos
 
     /**
      * @ORM\ManyToOne(targetEntity=Admin::class, inversedBy="promos")
-     * @Groups({"promos:read"})
      */
     private $admin;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"promos:read"})
      */
     private $etat;
 

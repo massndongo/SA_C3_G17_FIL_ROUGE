@@ -12,23 +12,25 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
- *     normalizationContext={"groups"={"grpecompetence:read_m"}},
  *     collectionOperations={
  *          "get_grpeCompetences"={
  *              "method" = "GET",
- *              "path" = "/admin/grpecompetences",
+ *              "path" = "/admins/grpecompetences",
+ *              "normalization_context"={"groups"={"grpecompetence:read_m"}},
  *              "security"="is_granted('ROLE_FORMATEUR')",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
  *          "get_competences"={
  *              "method" = "GET",
- *              "path" = "/admin/grpecompetences/competences",
+ *              "path" = "/admins/grpecompetences/competences",
+ *              "normalization_context"={"groups"={"grpecompetence:competence:read"}},
  *              "access_control"="is_granted('ROLE_FORMATEUR')",
  *              "access_control_message"="Vous n'avez pas access à cette Ressource",
  *          },
  *          "add_groupeCompetence"={
  *              "method" = "POST",
- *              "path" = "/admin/grpecompetences",
+ *              "path" = "/admins/grpecompetences",
+ *              "normalization_context"={"groups"={"grpecompetence:read_m"}},
  *              "security_post_denormalize"="is_granted('EDIT',object)",
  *              "security_post_denormalize_message"="Vous n'avez pas access à cette Ressource",
  *          },
@@ -36,22 +38,25 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     itemOperations={
  *          "get_groupeCompetence"={
  *              "method" = "GET",
- *              "path" = "/admin/grpecompetences/{id}",
+ *              "path" = "/admins/grpecompetences/{id}",
  *              "requirements"={"id"="\d+"},
+ *              "normalization_context"={"groups"={"grpecompetence:read_m"}},
  *              "security"="is_granted('VIEW',object)",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
  *          "get_competence_in_grpeCompetence"={
  *              "method" = "GET",
- *              "path" = "/admin/grpecompetences/{id}/competences",
+ *              "path" = "/admins/grpecompetences/{id}/competences",
  *              "requirements"={"id"="\d+"},
+ *              "normalization_context"={"groups"={"grpecompetence:read_m"}},
  *              "security"="is_granted('VIEW',object)",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
  *          "set_grpeCompetence"={
  *              "method" = "PUT",
- *              "path" = "/admin/grpecompetences/{id}",
+ *              "path" = "/admins/grpecompetences/{id}",
  *              "requirements"={"id"="\d+"},
+ *              "normalization_context"={"groups"={"grpecompetence:read_m","grpecompetence:competence:read"}},
  *              "security"="is_granted('SET',object)",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
@@ -65,19 +70,19 @@ class GroupeCompetence
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"grpecompetence:read_m"})
+     * @Groups({"grpecompetence:read_m","referentiel:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"grpecompetence:read_m","ref:read"})  
+     * @Groups({"grpecompetence:read_m","referentiel:read"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"grpecompetence:read_m","ref:read"})
+     * @Groups({"grpecompetence:read_m","referentiel:read"})
      */
     private $descriptif;
 
@@ -91,7 +96,7 @@ class GroupeCompetence
     /**
      * @ORM\ManyToMany(targetEntity=Competence::class, mappedBy="groupeCompetence",cascade={"persist"})
      * @Assert\NotNull()
-     * @Groups({"grpecompetence:read_m"})
+     * @Groups({"grpecompetence:read_m","refGroupe:read","grpecompetence:competence:read"})
      */
     private $competences;
 
