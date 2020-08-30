@@ -8,9 +8,7 @@ use App\Repository\FormateurRepository;
 use App\Repository\GroupeCompetenceRepository;
 use App\Repository\PromosRepository;
 use App\Repository\ReferentielRepository;
-use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use phpDocumentor\Reflection\Types\Self_;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -155,7 +153,7 @@ class PromosController extends AbstractController
             $promo = $this->serializer->normalize($promo,null,["groups" => [self::PROMO_READ]]);
             return $this->json($promo,Response::HTTP_OK);
         }
-        return $this->json(["message" => Self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
+        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
 
     /**
@@ -228,7 +226,7 @@ class PromosController extends AbstractController
             }
             return $this->json($promoTab,Response::HTTP_OK);
         }
-        return $this->json(["message" => "Ressource inexistante."],Response::HTTP_NOT_FOUND);
+        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
 
     /**
@@ -405,7 +403,7 @@ class PromosController extends AbstractController
                                 ),
                                 "text/html"
                             );
-                $mailerStatus = $mailer->send($message);
+                $mailer->send($message);
             }
             $unitErrors = $this->validator->validate($unit);
             if(count($unitErrors))
