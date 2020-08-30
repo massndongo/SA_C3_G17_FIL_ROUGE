@@ -26,34 +26,25 @@ use Doctrine\ORM\Mapping as ORM;
  *          },
  *          "add_url_livrables_attendus"={
  *              "method"="POST",
- *              "path"="/apprenants/{idStudent}/groupe/{id}/livrables",
+ *              "path"="/apprenants/{idStudent}/groupe/{idGroupe}/livrables",
  *              "security"="is_granted('ROLE_FORMATEUR')",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *
- *          }
+ *          },
  *     },
  *      itemOperations={
  *          "add_assignation"={
  *              "method"="PUT",
- *              "path" = "/formateurs/promo/{idPromo}/brief/{id}/assignation",
+ *              "path" = "/formateurs/promo/{idPromo}/brief/{idBrief}/assignation",
  *              "security" = "is_granted('ROLE_FORMATEUR')",
  *              "security_message" = "Vous n'avez pas access à cette Ressource",
  *          },
  *          "set_brief"={
  *              "method"="PUT",
- *              "path"="/formateurs/promo/{idPromo}/brief/{id}",
- *              "requirements"={"id"="\d+"},
- *              "security"="is_granted('ROLE_FORMATEUR')",
- *              "security_message"="Vous n'avez pas access à cette Ressource",
- *          },
- *          "delete_brief"={
- *              "method"="DELETE",
- *              "path"="/formateurs/promo/{idPromo}/brief/{id}",
- *              "requirements"={"id"="\d+"},
+ *              "path"="/formateurs/promo/{idP}/brief/{idB}",
  *              "security"="is_granted('ROLE_FORMATEUR')",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          }
- * 
  *     },
  * )
  * @ORM\Entity(repositoryClass=BriefRepository::class)

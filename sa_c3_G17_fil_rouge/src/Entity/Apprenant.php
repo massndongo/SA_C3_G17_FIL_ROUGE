@@ -80,7 +80,7 @@ class Apprenant extends User
     private $statistiquesCompetences;
 
     /**
-     * @ORM\OneToMany(targetEntity=PromoBriefApprenant::class, mappedBy="apprenant")
+     * @ORM\OneToMany(targetEntity=PromoBriefApprenant::class, mappedBy="apprenant",cascade={"persist"})
      */
     private $promoBriefApprenants;
 

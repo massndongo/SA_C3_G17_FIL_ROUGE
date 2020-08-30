@@ -42,7 +42,7 @@ class PromoBrief
     private $livrablePartiels;
 
     /**
-     * @ORM\OneToMany(targetEntity=PromoBriefApprenant::class, mappedBy="prommoBrief")
+     * @ORM\OneToMany(targetEntity=PromoBriefApprenant::class, mappedBy="prommoBrief",cascade={"persist"})
      */
     private $promoBriefApprenants;
 

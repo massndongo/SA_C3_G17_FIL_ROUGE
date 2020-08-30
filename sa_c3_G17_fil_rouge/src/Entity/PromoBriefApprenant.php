@@ -23,14 +23,14 @@ class PromoBriefApprenant
     private $statut;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Apprenant::class, inversedBy="promoBriefApprenants")
+     * @ORM\ManyToOne(targetEntity=Apprenant::class, inversedBy="promoBriefApprenants",cascade={"persist"})
      */
     private $apprenant;
 
     /**
-     * @ORM\ManyToOne(targetEntity=PromoBrief::class, inversedBy="promoBriefApprenants")
+     * @ORM\ManyToOne(targetEntity=PromoBrief::class, inversedBy="promoBriefApprenants",cascade={"persist"})
      */
-    private $prommoBrief;
+    private $promoBrief;
 
     public function getId(): ?int
     {
@@ -61,14 +61,14 @@ class PromoBriefApprenant
         return $this;
     }
 
-    public function getPrommoBrief(): ?PromoBrief
+    public function getPromoBrief(): ?PromoBrief
     {
-        return $this->prommoBrief;
+        return $this->promoBrief;
     }
 
-    public function setPrommoBrief(?PromoBrief $prommoBrief): self
+    public function setPromoBrief(?PromoBrief $promoBrief): self
     {
-        $this->prommoBrief = $prommoBrief;
+        $this->promoBrief = $promoBrief;
 
         return $this;
     }
