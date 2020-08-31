@@ -131,10 +131,16 @@ class Referentiel
      */
     private $promos;
 
+    /**
+     * @ORM\OneToMany(targetEntity=StatistiquesCompetences::class, mappedBy="referentiel")
+     */
+    private $statistiquesCompetences;
+
     public function __construct()
     {
         $this->groupeCompetence = new ArrayCollection();
         $this->promos = new ArrayCollection();
+        $this->statistiquesCompetences = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -272,6 +278,37 @@ class Referentiel
             // set the owning side to null (unless already changed)
             if ($promo->getReferentiel() === $this) {
                 $promo->setReferentiel(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|StatistiquesCompetences[]
+     */
+    public function getStatistiquesCompetences(): Collection
+    {
+        return $this->statistiquesCompetences;
+    }
+
+    public function addStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if (!$this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences[] = $statistiquesCompetence;
+            $statistiquesCompetence->setReferentiel($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if ($this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences->removeElement($statistiquesCompetence);
+            // set the owning side to null (unless already changed)
+            if ($statistiquesCompetence->getReferentiel() === $this) {
+                $statistiquesCompetence->setReferentiel(null);
             }
         }
 

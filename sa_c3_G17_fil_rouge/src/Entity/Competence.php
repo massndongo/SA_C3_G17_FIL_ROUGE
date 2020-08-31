@@ -50,7 +50,7 @@ class Competence
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"grpecompetence:read_m","competence:read"})
+     * @Groups({"grpecompetence:read_m","competence:read", "cmpt:read"})
      */
     private $id;
 
@@ -59,7 +59,7 @@ class Competence
      * @Assert\NotBlank(
      *     message="Le libelle est obligatoire"
      * )
-     * @Groups({"grpecompetence:read_m","competence:read"})
+     * @Groups({"grpecompetence:read_m","competence:read", "cmpt:read"})
      */
     private $libelle;
 
@@ -95,10 +95,16 @@ class Competence
      */
     private $niveaux;
 
+    /**
+     * @ORM\OneToMany(targetEntity=StatistiquesCompetences::class, mappedBy="Competence")
+     */
+    private $statistiquesCompetences;
+
     public function __construct()
     {
         $this->groupeCompetence = new ArrayCollection();
         $this->niveaux = new ArrayCollection();
+        $this->statistiquesCompetences = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -199,6 +205,37 @@ class Competence
             // set the owning side to null (unless already changed)
             if ($niveau->getCompetence() === $this) {
                 $niveau->setCompetence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|StatistiquesCompetences[]
+     */
+    public function getStatistiquesCompetences(): Collection
+    {
+        return $this->statistiquesCompetences;
+    }
+
+    public function addStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if (!$this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences[] = $statistiquesCompetence;
+            $statistiquesCompetence->setCompetence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStatistiquesCompetence(StatistiquesCompetences $statistiquesCompetence): self
+    {
+        if ($this->statistiquesCompetences->contains($statistiquesCompetence)) {
+            $this->statistiquesCompetences->removeElement($statistiquesCompetence);
+            // set the owning side to null (unless already changed)
+            if ($statistiquesCompetence->getCompetence() === $this) {
+                $statistiquesCompetence->setCompetence(null);
             }
         }
 

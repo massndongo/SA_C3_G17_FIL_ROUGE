@@ -56,10 +56,16 @@ class Groupes
      */
     private $apprenant;
 
+    /**
+     * @ORM\OneToMany(targetEntity=BriefGroupe::class, mappedBy="groupes")
+     */
+    private $briefgroupe;
+
     public function __construct()
     {
         $this->formateur = new ArrayCollection();
         $this->apprenant = new ArrayCollection();
+        $this->briefgroupe = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -174,6 +180,37 @@ class Groupes
     {
         if ($this->apprenant->contains($apprenant)) {
             $this->apprenant->removeElement($apprenant);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|BriefGroupe[]
+     */
+    public function getBriefgroupe(): Collection
+    {
+        return $this->briefgroupe;
+    }
+
+    public function addBriefgroupe(BriefGroupe $briefgroupe): self
+    {
+        if (!$this->briefgroupe->contains($briefgroupe)) {
+            $this->briefgroupe[] = $briefgroupe;
+            $briefgroupe->setGroupes($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBriefgroupe(BriefGroupe $briefgroupe): self
+    {
+        if ($this->briefgroupe->contains($briefgroupe)) {
+            $this->briefgroupe->removeElement($briefgroupe);
+            // set the owning side to null (unless already changed)
+            if ($briefgroupe->getGroupes() === $this) {
+                $briefgroupe->setGroupes(null);
+            }
         }
 
         return $this;

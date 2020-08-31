@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\NiveauRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -61,6 +63,16 @@ class Niveau
      * @ORM\Column(type="boolean")
      */
     private $isDeleted;
+
+    /**
+     * @ORM\OneToMany(targetEntity=NiveauLivrablePartiel::class, mappedBy="niveau")
+     */
+    private $niveauLivrablePartiel;
+
+    public function __construct()
+    {
+        $this->niveauLivrablePartiel = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -129,6 +141,37 @@ class Niveau
     public function setIsDeleted(bool $isDeleted): self
     {
         $this->isDeleted = $isDeleted;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|NiveauLivrablePartiel[]
+     */
+    public function getNiveauLivrablePartiel(): Collection
+    {
+        return $this->niveauLivrablePartiel;
+    }
+
+    public function addNiveauLivrablePartiel(NiveauLivrablePartiel $niveauLivrablePartiel): self
+    {
+        if (!$this->niveauLivrablePartiel->contains($niveauLivrablePartiel)) {
+            $this->niveauLivrablePartiel[] = $niveauLivrablePartiel;
+            $niveauLivrablePartiel->setNiveau($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNiveauLivrablePartiel(NiveauLivrablePartiel $niveauLivrablePartiel): self
+    {
+        if ($this->niveauLivrablePartiel->contains($niveauLivrablePartiel)) {
+            $this->niveauLivrablePartiel->removeElement($niveauLivrablePartiel);
+            // set the owning side to null (unless already changed)
+            if ($niveauLivrablePartiel->getNiveau() === $this) {
+                $niveauLivrablePartiel->setNiveau(null);
+            }
+        }
 
         return $this;
     }

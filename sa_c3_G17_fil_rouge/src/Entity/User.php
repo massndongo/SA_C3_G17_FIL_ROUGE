@@ -25,7 +25,7 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"user:read"})
+     * @Groups({"user:read", "cmpt:read"})
      */
     protected $id;
 
@@ -38,7 +38,7 @@ class User implements UserInterface
 
     /**
      *
-     * @Groups({"user:read"})
+     * 
     */
     protected $roles = [];
 
@@ -46,7 +46,7 @@ class User implements UserInterface
      * @var string The hashed password
      * @ORM\Column(type="string")
      * @Assert\NotBlank(message="Le password est obligatoire")
-     * @Groups({"user:read"})
+     * 
      */
     protected $password;
 
@@ -71,19 +71,19 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"user:read"})
+     * @Groups({"user:read", "cmpt:read"})
      */
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"user:read"})
+     * @Groups({"user:read", "cmpt:read"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
-     * @Groups({"user:read"})
+     * @Groups({"user:read", "cmpt:read"})
      */
     private $email;
 

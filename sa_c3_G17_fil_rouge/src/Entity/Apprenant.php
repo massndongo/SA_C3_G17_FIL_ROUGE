@@ -59,10 +59,28 @@ class Apprenant extends User
      */
     private $groupes;
 
+    /**
+     * @ORM\OneToMany(targetEntity=LivrableRendu::class, mappedBy="apprenan")
+     */
+    private $livrableRendus;
+
+    /**
+     * @ORM\OneToMany(targetEntity=StatistiquesCompetences::class, mappedBy="apprenant")
+     */
+    private $statisques;
+
+    /**
+     * @ORM\OneToMany(targetEntity=PromoBriefApprenant::class, mappedBy="apprenant")
+     */
+    private $PromoBriefApprenant;
+
     public function __construct()
     {
         parent::__construct();
         $this->groupes = new ArrayCollection();
+        $this->livrableRendus = new ArrayCollection();
+        $this->statisques = new ArrayCollection();
+        $this->PromoBriefApprenant = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -93,6 +111,99 @@ class Apprenant extends User
         if ($this->groupes->contains($groupe)) {
             $this->groupes->removeElement($groupe);
             $groupe->removeApprenant($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|LivrableRendu[]
+     */
+    public function getLivrableRendus(): Collection
+    {
+        return $this->livrableRendus;
+    }
+
+    public function addLivrableRendu(LivrableRendu $livrableRendu): self
+    {
+        if (!$this->livrableRendus->contains($livrableRendu)) {
+            $this->livrableRendus[] = $livrableRendu;
+            $livrableRendu->setApprenan($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLivrableRendu(LivrableRendu $livrableRendu): self
+    {
+        if ($this->livrableRendus->contains($livrableRendu)) {
+            $this->livrableRendus->removeElement($livrableRendu);
+            // set the owning side to null (unless already changed)
+            if ($livrableRendu->getApprenan() === $this) {
+                $livrableRendu->setApprenan(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|StatistiquesCompetences[]
+     */
+    public function getStatisques(): Collection
+    {
+        return $this->statisques;
+    }
+
+    public function addStatisque(StatistiquesCompetences $statisque): self
+    {
+        if (!$this->statisques->contains($statisque)) {
+            $this->statisques[] = $statisque;
+            $statisque->setApprenant($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStatisque(StatistiquesCompetences $statisque): self
+    {
+        if ($this->statisques->contains($statisque)) {
+            $this->statisques->removeElement($statisque);
+            // set the owning side to null (unless already changed)
+            if ($statisque->getApprenant() === $this) {
+                $statisque->setApprenant(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|PromoBriefApprenant[]
+     */
+    public function getPromoBriefApprenant(): Collection
+    {
+        return $this->PromoBriefApprenant;
+    }
+
+    public function addPromoBriefApprenant(PromoBriefApprenant $promoBriefApprenant): self
+    {
+        if (!$this->PromoBriefApprenant->contains($promoBriefApprenant)) {
+            $this->PromoBriefApprenant[] = $promoBriefApprenant;
+            $promoBriefApprenant->setApprenant($this);
+        }
+
+        return $this;
+    }
+
+    public function removePromoBriefApprenant(PromoBriefApprenant $promoBriefApprenant): self
+    {
+        if ($this->PromoBriefApprenant->contains($promoBriefApprenant)) {
+            $this->PromoBriefApprenant->removeElement($promoBriefApprenant);
+            // set the owning side to null (unless already changed)
+            if ($promoBriefApprenant->getApprenant() === $this) {
+                $promoBriefApprenant->setApprenant(null);
+            }
         }
 
         return $this;
