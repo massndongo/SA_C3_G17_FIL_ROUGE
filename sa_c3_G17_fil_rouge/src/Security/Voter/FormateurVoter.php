@@ -30,12 +30,10 @@ class FormateurVoter extends Voter
                 // logic to determine if the user can EDIT
                 // return true or false
                 return $user->getRoles()[0] === "ROLE_FORMATEUR";
-                break;
             case 'VIEW':
                 // logic to determine if the user can VIEW
                 // return true or false
                 return ($user->getRoles()[0] === "ROLE_ADMIN" || $user->getRoles()[0] === "ROLE_FORMATEUR") || $user->getRoles()[0] === "ROLE_CM";
-                break;
         }
 
         return false;

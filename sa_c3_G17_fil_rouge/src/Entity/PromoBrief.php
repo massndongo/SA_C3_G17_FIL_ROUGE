@@ -160,5 +160,4 @@ class PromoBrief
 
         return $this;
     }
-
 }

@@ -24,15 +24,11 @@ class ApprenantVoter extends Voter
             return false;
         }
 
-        // ... (check conditions and return true to grant permission) ...
+        // ... (check conditions and return true to grant permission) 
         switch ($attribute) {
             case 'EDIT':
-                // logic to determine if the user can EDIT
-                // return true or false
                 return $user->getRoles()[0] === "ROLE_ADMIN" || $user->getRoles()[0] === "ROLE_FORMATEUR";
             case 'VIEW':
-                // logic to determine if the user can VIEW
-                // return true or false
                 return ($user->getRoles()[0] === "ROLE_ADMIN" || $user->getRoles()[0] === "ROLE_FORMATEUR") || ($user->getRoles()[0] === "ROLE_APPRENANT" || $user->getRoles()[0] === "ROLE_CM");
             case 'ADD':
                 return $user->getRoles()[0] === "ROLE_ADMIN" ;

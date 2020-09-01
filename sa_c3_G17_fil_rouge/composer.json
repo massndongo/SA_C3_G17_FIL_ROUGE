@@ -25,7 +25,10 @@
         "symfony/property-info": "5.1.*",
         "symfony/security-bundle": "5.1.*",
         "symfony/serializer": "5.1.*",
+<<<<<<< HEAD
         "symfony/swiftmailer-bundle": "^3.4",
+=======
+>>>>>>> af9a2b2b4c8ff528195c02b308bdc4146b916055
         "symfony/twig-bundle": "5.1.*",
         "symfony/validator": "5.1.*",
         "symfony/yaml": "5.1.*"

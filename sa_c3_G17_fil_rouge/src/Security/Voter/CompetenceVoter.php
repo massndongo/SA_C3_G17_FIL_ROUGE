@@ -23,15 +23,11 @@ class CompetenceVoter extends Voter
         if (!$user instanceof UserInterface) {
             return false;
         }
-
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case (('EDIT' || 'SET') || 'VIEW' ):
-                // logic to determine if the user can EDIT
-                // return true or false
                 return $user->getRoles()[0] === "ROLE_ADMIN" || $user->getRoles()[0] === "ROLE_FORMATEUR";
         }
-
         return false;
     }
 }
