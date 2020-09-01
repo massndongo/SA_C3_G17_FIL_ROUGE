@@ -42,15 +42,13 @@ class ApprenantController extends AbstractController
      *     }
      * )
      */
-    public function getApprenants(ApprenantRepository $apprenantRepository)
+    public function getApprenants()
     {
         if (!$this->isGranted("VIEW",new Apprenant()))
         {
             return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        $students = $apprenantRepository->findBy([
-            "isDeleted" => false
-        ]);
+        $students = $this->apprenantRepository->findBy(["isDeleted" => false]);
         $students = $this->serializer->normalize($students,null,["groups" => [self::APPRENANT_READ]]);
         return $this->json($students,Response::HTTP_OK);
     }
@@ -126,32 +124,31 @@ class ApprenantController extends AbstractController
         return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
 
-    /**
-     * @Route(
-     *     path="/api/apprenants/{id<\d+>}",
-     *     methods={"PUT"},
-     *     defaults={
-     *          "__controller"="App\Controller\ApprenantController::setStudent",
-     *          "__api_resource_class"=Apprenant::class,
-     *          "__api_collection_operation_name"="set_student"
-     *     }
-     * )
-     */
-    public function setStudent($id)
-    {
-        if (!$this->isGranted("EDIT",new Apprenant()))
-        {
-            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
-        }
-        $student = $this->apprenantRepository->findOneBy(["id" => $id]);
-        if ($student && $student->getIsDeleted())
-        {
-            $student = $this->serializer->normalize($student,null,["groups" => [self::APPRENANT_READ]]);
-            return $this->json($student,Response::HTTP_OK);
-        }
-        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
-
-    }
-
+//    /**
+//     * @Route(
+//     *     path="/api/apprenants/{id<\d+>}",
+//     *     methods={"PUT"},
+//     *     defaults={
+//     *          "__controller"="App\Controller\ApprenantController::setStudent",
+//     *          "__api_resource_class"=Apprenant::class,
+//     *          "__api_collection_operation_name"="set_student"
+//     *     }
+//     * )
+//     */
+//    public function setStudent($id)
+//    {
+//        if (!$this->isGranted("EDIT",new Apprenant()))
+//        {
+//            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+//        }
+//        $student = $this->apprenantRepository->findOneBy(["id" => $id]);
+//        if ($student && $student->getIsDeleted())
+//        {
+//            $student = $this->serializer->normalize($student,null,["groups" => [self::APPRENANT_READ]]);
+//            return $this->json($student,Response::HTTP_OK);
+//        }
+//        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
+//
+//    }
 
 }

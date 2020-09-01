@@ -56,7 +56,10 @@ class CompetenceController extends AbstractController
      * @Route(
      *     path="/api/admins/competences",
      *     methods={"GET"},
-     *     name="getCompetences"
+     *     name="getCompetences",
+     *     defaults={
+     *          "_api_receive"=false,
+     *     }
      * )
      */
     public function getCompetences()
@@ -72,7 +75,7 @@ class CompetenceController extends AbstractController
 
     /**
      * @Route(
-     *     path="/api/admin/competences",
+     *     path="/api/admins/competences",
      *     methods={"POST"},
      *     name="addCompetence"
      * )
@@ -123,7 +126,7 @@ class CompetenceController extends AbstractController
     
     /**
      * @Route(
-     *     path="/api/admin/competences/{id<\d+>}",
+     *     path="/api/admins/competences/{id<\d+>}",
      *     methods={"PUT"},
      *     name="setCompetence"
      * )

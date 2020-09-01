@@ -43,6 +43,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *           }
  *     },
  *     itemOperations={
+ *
  *          "get_promo" = {
  *              "method"="GET",
  *              "path"="/admins/promos/{id}",

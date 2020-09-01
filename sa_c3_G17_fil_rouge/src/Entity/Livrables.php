@@ -23,13 +23,12 @@ class Livrables
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"apprenant:read"})
+     * @ORM\Column(type="string", length=255,nullable=true)
      */
     private $url;
 
     /**
-     * @ORM\ManyToOne(targetEntity=LivrableAttendu::class, inversedBy="livrables")
+     * @ORM\ManyToOne(targetEntity=LivrableAttendu::class, inversedBy="livrables",cascade={"persist"})
      */
     private $livrableAttendu;
 

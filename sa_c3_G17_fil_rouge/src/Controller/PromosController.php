@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Promos;
+use App\Entity\StatistiquesCompetences;
 use App\Repository\ApprenantRepository;
 use App\Repository\FormateurRepository;
 use App\Repository\GroupeCompetenceRepository;
@@ -37,30 +38,30 @@ class PromosController extends AbstractController
     }
 
 
-    /**
-     * @Route(
-     *     path="/mail",
-     *     name="mail"
-     * )
-     */
-    public function email(\Swift_Mailer $mailer,GroupeCompetenceRepository $repository)
-    {
-
-        $sender = 'terangawebdevelopment@gmail.com';
-        $receiver = "petitpapatoure98@gmail.com";
-        $message = (new \Swift_Message("Ajout apprenant au promo"))
-            ->setFrom($sender)
-            ->setTo($receiver)
-            ->setBody(
-                $this->renderView(
-                    "emails/congratulation.html.twig",["nothing"]
-                ),
-                "text/html"
-            );
-        $mailer->send($message);
-        $grpeCompetence = $repository->findOneBy(["id" => 1]);
-        return $this->json($grpeCompetence,Response::HTTP_OK);
-    }
+//    /**
+//     * @Route(
+//     *     path="/mail",
+//     *     name="mail"
+//     * )
+//     */
+//    public function email(\Swift_Mailer $mailer,GroupeCompetenceRepository $repository)
+//    {
+//
+//        $sender = 'terangawebdevelopment@gmail.com';
+//        $receiver = "massndongo86@gmail.com";
+//        $message = (new \Swift_Message("Ajout apprenant au promo"))
+//            ->setFrom($sender)
+//            ->setTo($receiver)
+//            ->setBody(
+//                $this->renderView(
+//                    "emails/congratulation.html.twig",["nothing"]
+//                ),
+//                "text/html"
+//            );
+//        $mailer->send($message);
+//        $grpeCompetence = $repository->findOneBy(["id" => 1]);
+//        return $this->json($grpeCompetence,Response::HTTP_OK);
+//    }
 
     /**
      * @Route(
@@ -131,6 +132,7 @@ class PromosController extends AbstractController
                 }
             }
         }
+        $promoTab = $this->serializer->normalize($promoTab,null,["groups" => [self::PROMO_READ,self::PROMO_APPRENANT_READ]]);
         return $this->json($promoTab,Response::HTTP_OK);
     }
 
@@ -197,10 +199,10 @@ class PromosController extends AbstractController
      * @Route(
      *     path="/api/admins/promos/{id}/referentiels",
      *     methods={"GET"},
-     *     name="getReferentiel"
+     *     name="getReferentielInPromo"
      * )
      */
-    public function getReferentiel($id)
+    public function getReferentielInPromo($id)
     {
         if (!$this->isGranted("VIEW",new Promos()))
         {
@@ -373,6 +375,19 @@ class PromosController extends AbstractController
         {
             return $this->json(["message" => "Vous devez obligatoirement ajouter un groupe principal"],Response::HTTP_BAD_REQUEST);
         }
+        if(count($formateurs))
+        {
+            foreach ($formateurs as $formateur)
+            {
+                $teacherId = isset($formateur["id"]) ? $formateur["id"] : null;
+                $teacher = $formateurRepository->findOneBy(["id" => $teacherId]);
+                if(!$teacher)
+                {
+                    return $this->json(["message" => "Cette formateur n'existe pas."],Response::HTTP_NOT_FOUND);
+                }
+                $promoObj->addFormateur($teacher);
+            }
+        }
         foreach ($groupes as $groupe)
         {
             $emails = isset($groupe["apprenants"]) ? $groupe["apprenants"] : [];
@@ -392,6 +407,7 @@ class PromosController extends AbstractController
                 {
                     return $this->json(["message" => "L'apprenant ayant l'email: $email[email] n'existe pas."],Response::HTTP_NOT_FOUND);
                 }
+                $statistiqueCompetence = new StatistiquesCompetences();
                 $student->setIsConnected(false);
                 $unit->addApprenant($student);
                 $message = (new \Swift_Message("Ajout apprenant au promo"))
@@ -404,6 +420,13 @@ class PromosController extends AbstractController
                                 "text/html"
                             );
                 $mailer->send($message);
+                $statistiqueCompetence->setPromo($promoObj)
+                                    ->setApprenant($student)
+                                    ->setReferentiel($referentiel)
+                                    ->setNiveau1(0)
+                                    ->setNiveau2(0)
+                                    ->setNiveau3(0);
+                $this->manager->persist($statistiqueCompetence);
             }
             $unitErrors = $this->validator->validate($unit);
             if(count($unitErrors))
@@ -413,19 +436,6 @@ class PromosController extends AbstractController
             $this->manager->persist($unit);
             $promoObj->addGroupe($unit);
         }
-        if(count($formateurs))
-        {
-            foreach ($formateurs as $formateur)
-            {
-                $teacherId = isset($formateur["id"]) ? $formateur["id"] : null;
-                $teacher = $formateurRepository->findOneBy(["id" => $teacherId]);
-                if(!$teacher)
-                {
-                    return $this->json(["message" => "Cette formateur n'existe pas."],Response::HTTP_NOT_FOUND);
-                }
-                $promoObj->addFormateur($teacher);
-            }
-        };
         $this->manager->persist($promoObj);
         $this->manager->flush();
         return $this->json($promoObj,Response::HTTP_CREATED);

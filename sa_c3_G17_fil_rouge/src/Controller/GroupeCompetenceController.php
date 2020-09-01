@@ -73,10 +73,10 @@ class GroupeCompetenceController extends AbstractController
      * @Route(
      *     path="/api/admins/grpecompetences/competences",
      *     methods={"GET"},
-     *     name="getCompetences"
+     *     name="getCompetencesInGroupeCompetences"
      * )
      */
-    public function getCompetences()
+    public function getCompetencesInGroupeCompetences()
     {
         if(!($this->isGranted("VIEW",new GroupeCompetence())))
         {
@@ -180,35 +180,35 @@ class GroupeCompetenceController extends AbstractController
         return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
 
-    /**
-     * @Route(
-     *     path="/api/admins/grpecompetences/{id<\d+>}",
-     *     methods={"DELETE"},
-     *     name="delGroupeCompetence",
-     *     defaults={
-     *          "_api_resource_class"=GroupeCompetence::class,
-     *          "_api_collection_operation_name"="delGroupeCompetence",
-     *          "_controller"="App\Controller\BriefController::delGroupeCompetence",
-     *          "_api_receive"=false,
-     *     }
-     * )
-     */
-    public function delGroupeCompetence($id,EntityManagerInterface $manager)
-    {
-        dd("hi");
-        if(!$this->isGranted("DELETE",new GroupeCompetence()))
-        {
-            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
-        }
-        $groupeCompetence = $this->groupeCompetenceRepository->findOneBy(["id" => $id]);
-        if ($groupeCompetence && !$groupeCompetence->getIsDeleted()){
-            $groupeCompetence->setIsDeleted(true);
-            $manager->flush();
-            $groupeCompetence = $this->serializer->normalize($groupeCompetence,null,["groups" => [self::GROUPE_COMPETENCE_READ]]);
-            return $this->json($groupeCompetence,Response::HTTP_OK);
-        }
-        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
-    }
+//    /**
+//     * @Route(
+//     *     path="/api/admins/grpecompetences/{id<\d+>}",
+//     *     methods={"DELETE"},
+//     *     name="delGroupeCompetence",
+//     *     defaults={
+//     *          "_api_resource_class"=GroupeCompetence::class,
+//     *          "_api_collection_operation_name"="delGroupeCompetence",
+//     *          "_controller"="App\Controller\BriefController::delGroupeCompetence",
+//     *          "_api_receive"=false,
+//     *     }
+//     * )
+//     */
+//    public function delGroupeCompetence($id,EntityManagerInterface $manager)
+//    {
+//        dd("hi");
+//        if(!$this->isGranted("DELETE",new GroupeCompetence()))
+//        {
+//            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+//        }
+//        $groupeCompetence = $this->groupeCompetenceRepository->findOneBy(["id" => $id]);
+//        if ($groupeCompetence && !$groupeCompetence->getIsDeleted()){
+//            $groupeCompetence->setIsDeleted(true);
+//            $manager->flush();
+//            $groupeCompetence = $this->serializer->normalize($groupeCompetence,null,["groups" => [self::GROUPE_COMPETENCE_READ]]);
+//            return $this->json($groupeCompetence,Response::HTTP_OK);
+//        }
+//        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
+//    }
     
     private function removeCompetence(GroupeCompetence $groupeCompetence,$competences)
     {

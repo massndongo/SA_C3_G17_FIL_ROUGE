@@ -33,9 +33,13 @@ class ProfilController extends AbstractController
      * @Route(
      *     path="/api/admins/profils",
      *     methods={"GET"},
+     *     name="getProfils",
+     *     defaults={
+     *          "_api_receive"=false,
+     *     }
      * )
      */
-    public function getProfils()
+    public function getProfils(Request $request)
     {
         if (!$this->isGranted("VIEW",new Profil()))
         {

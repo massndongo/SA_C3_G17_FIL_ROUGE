@@ -6,7 +6,6 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ProfilRepository;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
-use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -16,14 +15,14 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     collectionOperations={
  *          "get_profils"={
  *              "method"="GET",
- *              "path"="/admin/profils",
+ *              "path"="/admins/profils",
  *              "normalization_context"={"groups"={"profil:read"}},
  *              "security"="is_granted('ROLE_ADMIN')",
  *              "security_message"="Vous n'avez pas access à cette Ressource"
  *          },
  *          "get_users_in_profil"={
  *              "method"="GET",
- *              "path"="/admin/profils/{id}/users",
+ *              "path"="/admins/profils/{id}/users",
  *              "requirements"={"id"="\d+"},
  *              "normalization_context"={"groups"={"profilUsers:read"}},
  *              "security"="is_granted('ROLE_ADMIN')",

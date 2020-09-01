@@ -43,6 +43,11 @@ class Ressource
      */
     private $brief;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isDeleted;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -92,6 +97,18 @@ class Ressource
     public function setBrief(?Brief $brief): self
     {
         $this->brief = $brief;
+
+        return $this;
+    }
+
+    public function getIsDeleted(): ?bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setIsDeleted(bool $isDeleted): self
+    {
+        $this->isDeleted = $isDeleted;
 
         return $this;
     }

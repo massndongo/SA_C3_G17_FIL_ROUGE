@@ -57,9 +57,14 @@ class Referentiel
     private $presentation;
 
     /**
+<<<<<<< HEAD
      * @ORM\Column(type="string", length=255)
      * @Groups({"promos:read","referentiel:read","getBriefs:read"})
      * @Assert\NotBlank()
+=======
+     * @ORM\Column(type="blob", length=255, nullable=true)
+     * @Groups({"promos:read","referentiel:read"})
+>>>>>>> ead6921646f45a1fec3dfedb310d3afe9068397a
      */
     private $programme;
 

@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Formateur;
-use App\Entity\User;
 use App\Repository\FormateurRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -59,38 +58,38 @@ class FormateurController extends AbstractController
      *     }
      * )
     */
-    public function getFormateurs(FormateurRepository $formateurRepository, SerializerInterface $serializer)
+    public function getFormateurs()
     {
         if (!$this->isGranted("VIEW",new Formateur()))
         {
             return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
         }
-        $formateurs = $formateurRepository->findAll();
+        $formateurs = $this->formateurRepository->findAll();
         $formateurs = $this->serializer->normalize($formateurs,null,["groups" => [self::FORMATEUR_READ]]);
         return $this->json($formateurs,Response::HTTP_OK);
     }
-     /**
-     * @Route(
-     *     path="/api/formateurs/{id<\d+>}",
-     *     methods={"PUT"},
-     *     defaults={
-     *          "__controller"="App\Controller\FormateurController::setFormateur",
-     *          "__api_resource_class"=Formateur::class,
-     *          "__api_collection_operation_name"="set_formateur"
-     *     }
-     * )
-     */
-    public function setFormateur($id)
-    {
-        if (!$this->isGranted("EDIT",new Formateur()))
-        {
-            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
-        }
-        $formateur = $this->formateurRepository->findOneBy(["id" => $id]);
-        if($formateur)
-        {
-            return $this->json(["message" => "hii"],Response::HTTP_OK);
-        }
-        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_FORBIDDEN);
-    }
+//     /**
+//     * @Route(
+//     *     path="/api/formateurs/{id<\d+>}",
+//     *     methods={"PUT"},
+//     *     defaults={
+//     *          "__controller"="App\Controller\FormateurController::setFormateur",
+//     *          "__api_resource_class"=Formateur::class,
+//     *          "__api_collection_operation_name"="set_formateur"
+//     *     }
+//     * )
+//     */
+//    public function setFormateur($id)
+//    {
+//        if (!$this->isGranted("EDIT",new Formateur()))
+//        {
+//            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+//        }
+//        $formateur = $this->formateurRepository->findOneBy(["id" => $id]);
+//        if($formateur)
+//        {
+//            return $this->json(["message" => "hii"],Response::HTTP_OK);
+//        }
+//        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_FORBIDDEN);
+//    }
 }

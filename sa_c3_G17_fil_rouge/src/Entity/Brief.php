@@ -76,10 +76,47 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
  *              "security"="is_granted('ROLE_FORMATEUR')",
  *              "security_message"="Vous n'avez pas access à cette Ressource",
  *          },
+ *          "add_brief"={
+ *              "method"="POST",
+ *              "path"="/formateurs/briefs",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *          },
+ *          "duplicate_brief"={
+ *              "method"="POST",
+ *              "path"="/formateurs/briefs/{id}",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *
+ *          },
+ *          "add_url_livrables_attendus"={
+ *              "method"="POST",
+ *              "path"="/apprenants/{idStudent}/groupe/{idGroupe}/livrables",
+ *              "security"="is_granted('ROLE_FORMATEUR')",
+ *              "security_message"="Vous n'avez pas access à cette Ressource",
+ *
+ *          },
  *     },
+ *
  * )
  * @ORM\Entity(repositoryClass=BriefRepository::class)
  */
+//itemOperations={
+//    *          "add_assignation"={
+//        *              "method"="PUT",
+// *              "path" = "/formateurs/promo/{idPromo}/brief/{idBrief}/assignation",
+// *              "security" = "is_granted('ROLE_FORMATEUR')",
+// *              "security_message" = "Vous n'avez pas access à cette Ressource",
+// *          },
+// *          "set_brief"={
+//        *              "method"="PUT",
+// *              "path"="/formateurs/promo/{idP}/brief/{idB}",
+// *              "security"="is_granted('ROLE_FORMATEUR')",
+// *              "security_message"="Vous n'avez pas access à cette Ressource",
+// *          }
+// *     },
+// the itemOperation generated No item route associated with the type "App\Entity\Brief" error.
+// Remove the itemoperation if you want your tests work
 class Brief
 {
     /**
@@ -139,7 +176,7 @@ class Brief
     private $modalitesEvaluation;
 
     /**
-     * @ORM\Column(type="blob",nullable=true)
+     * @ORM\Column(type="blob", nullable=true)
      */
     private $avatar;
 
@@ -212,6 +249,11 @@ class Brief
      */
     private $livrableAttendus;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isDeleted;
+
     public function __construct()
     {
         $this->groupes = new ArrayCollection();
@@ -226,7 +268,6 @@ class Brief
     {
         return $this->id;
     }
-
     public function setId($id)
     {
         $this->id = $id;
@@ -558,6 +599,18 @@ class Brief
             $this->livrableAttendus->removeElement($livrableAttendu);
             $livrableAttendu->removeBrief($this);
         }
+
+        return $this;
+    }
+
+    public function getIsDeleted(): ?bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setIsDeleted(bool $isDeleted): self
+    {
+        $this->isDeleted = $isDeleted;
 
         return $this;
     }

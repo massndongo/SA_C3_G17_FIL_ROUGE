@@ -65,44 +65,44 @@ class ReferentielController extends AbstractController
         return $this->json($referentiels,Response::HTTP_OK);
     }
 
-     /**
-     * @Route(
-     *     path="/api/admins/referentiels",
-     *     methods={"POST"},
-     *     name="addReferentiel"
-     * )
-     */
-    public function addReferentiel(GroupeCompetenceRepository $grpeCompetenceRepository,TokenStorageInterface $tokenStorage,Request $request,EntityManagerInterface $manager,ValidatorInterface $validator)
-    {
-
-        if(!($this->isGranted("EDIT",new Referentiel())))
-        {
-            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
-        }
-        $referentielJson= $request->getContent();
-        $referentielTab = $this->serializer->decode($referentielJson,"json");
-        $grpeCompetences = isset($referentielTab["groupeCompetence"]) ? $referentielTab["groupeCompetence"] : [];
-        $referentielTab["groupeCompetence"] = [];
-        $referentielObj = $this->serializer->denormalize($referentielTab, "App\Entity\Referentiel");
-        $errors = $validator->validate($referentielObj);
-        if(count($errors))
-        {
-            return $this->json($errors,Response::HTTP_BAD_REQUEST);
-        }
-
-        if (!count($grpeCompetences)) {
-            return $this->json(["message" => "Ce groupe de competences n'existe pas."],Response::HTTP_BAD_REQUEST);
-        }
-        $referentielObj = $this->addgrpeComptenceToRef($grpeCompetences,$this->serializer,$validator,$referentielObj,$manager,$grpeCompetenceRepository);
-        if (!count($grpeCompetences))
-        {
-            return $this->json(["message" => "Ajoutez au moins un groupe de competences existant à cet referentiel."],Response::HTTP_BAD_REQUEST);
-        }
-        $manager->persist($referentielObj);
-        $manager->flush();
-        $referentielObj = $this->serializer->normalize($referentielObj,null,["groups" => [self::REFERENTIEL_GROUPE]]);
-        return $this->json($referentielObj,Response::HTTP_CREATED);
-    }
+//     /**
+//     * @Route(
+//     *     path="/api/admins/referentiels",
+//     *     methods={"POST"},
+//     *     name="addReferentiel"
+//     * )
+//     */
+//    public function addReferentiel(GroupeCompetenceRepository $grpeCompetenceRepository,TokenStorageInterface $tokenStorage,Request $request,EntityManagerInterface $manager,ValidatorInterface $validator)
+//    {
+//
+//        if(!($this->isGranted("EDIT",new Referentiel())))
+//        {
+//            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+//        }
+//        $referentielJson= $request->getContent();
+//        $referentielTab = $this->serializer->decode($referentielJson,"json");
+//        $grpeCompetences = isset($referentielTab["groupeCompetence"]) ? $referentielTab["groupeCompetence"] : [];
+//        $referentielTab["groupeCompetence"] = [];
+//        $referentielObj = $this->serializer->denormalize($referentielTab, "App\Entity\Referentiel");
+//        $errors = $validator->validate($referentielObj);
+//        if(count($errors))
+//        {
+//            return $this->json($errors,Response::HTTP_BAD_REQUEST);
+//        }
+//
+//        if (!count($grpeCompetences)) {
+//            return $this->json(["message" => "Ce groupe de competences n'existe pas."],Response::HTTP_BAD_REQUEST);
+//        }
+//        $referentielObj = $this->addgrpeComptenceToRef($grpeCompetences,$this->serializer,$validator,$referentielObj,$manager,$grpeCompetenceRepository);
+//        if (!count($grpeCompetences))
+//        {
+//            return $this->json(["message" => "Ajoutez au moins un groupe de competences existant à cet referentiel."],Response::HTTP_BAD_REQUEST);
+//        }
+//        $manager->persist($referentielObj);
+//        $manager->flush();
+//        $referentielObj = $this->serializer->normalize($referentielObj,null,["groups" => [self::REFERENTIEL_GROUPE]]);
+//        return $this->json($referentielObj,Response::HTTP_CREATED);
+//    }
 
     private function addGroupeCompetence(Referentiel $referentiel,$grpeCompetences)
     {
@@ -176,51 +176,51 @@ class ReferentielController extends AbstractController
         return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
     }
 
-        /**
-     * @Route(
-     *     path="/api/admins/referentiels/{id}",
-     *     methods={"PUT"},
-     *     name="set_referentiel"
-     * )
-     */
-    public function setReferentiel($id,EntityManagerInterface $manager,GroupeCompetenceRepository $groupeCompetenceRepository,Request $request,ValidatorInterface $validator)
-    {
-        if(!$this->isGranted("EDIT",new Referentiel()))
-        {
-            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
-        }
-        $referentielJson = $request->getContent();
-        $referentielTab = $this->serializer->decode($referentielJson,"json");
-        $grpeCompetences = isset($referentielTab["groupeCompetence"]) ? $referentielTab["groupeCompetence"] : [];
-        $referentielTab["groupeCompetence"] = [];
-        $referentielObj = $this->serializer->denormalize($referentielTab,"App\Entity\Referentiel");
-        $referentiel = $this->referentielRepository->findOneBy(["id" => $id]);
-        $referentielObj->setId((int)$id)
-            ->SetIsDeleted(false);
-        if($referentiel && !$referentiel->getIsDeleted())
-        {
-            $referentielObj = $this->addgrpeComptenceToRef($grpeCompetences,$this->serializer,$validator,$referentielObj,$manager,$groupeCompetenceRepository);
-            if($referentiel != $referentielObj){
-                $grpeCompetences = $referentiel->getGroupeCompetence();
-                $referentiel = $this->removeGroupeCompetence($referentiel,$grpeCompetences);
-                $groupeComptencesObj = $referentielObj->getGroupeCompetence();
-                $referentiel = $this->addGroupeCompetence($referentiel,$groupeComptencesObj);
-                $referentiel->setLibelle($referentielObj->getLibelle())
-                    ->setPresentation($referentielObj->getPresentation());
-                $manager->flush();
-            }
-            $referentiel = $this->serializer->normalize($referentiel,null,["groups" => [self::REFERENTIEL_READ]]);
-            return $this->json($referentiel,Response::HTTP_OK);
-        }
-        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
-    }
-    private function removeGroupeCompetence(Referentiel $referentiel,$grpeCompetences)
-    {
-        foreach ($grpeCompetences as $grpeCompetence){
-            $referentiel->removeGroupeCompetence($grpeCompetence);
-        }
-        return $referentiel;
-    }
+//        /**
+//     * @Route(
+//     *     path="/api/admins/referentiels/{id}",
+//     *     methods={"PUT"},
+//     *     name="set_referentiel"
+//     * )
+//     */
+//    public function setReferentiel($id,EntityManagerInterface $manager,GroupeCompetenceRepository $groupeCompetenceRepository,Request $request,ValidatorInterface $validator)
+//    {
+//        if(!$this->isGranted("EDIT",new Referentiel()))
+//        {
+//            return $this->json(["message" => self::ACCESS_DENIED],Response::HTTP_FORBIDDEN);
+//        }
+//        $referentielJson = $request->getContent();
+//        $referentielTab = $this->serializer->decode($referentielJson,"json");
+//        $grpeCompetences = isset($referentielTab["groupeCompetence"]) ? $referentielTab["groupeCompetence"] : [];
+//        $referentielTab["groupeCompetence"] = [];
+//        $referentielObj = $this->serializer->denormalize($referentielTab,"App\Entity\Referentiel");
+//        $referentiel = $this->referentielRepository->findOneBy(["id" => $id]);
+//        $referentielObj->setId((int)$id)
+//            ->SetIsDeleted(false);
+//        if($referentiel && !$referentiel->getIsDeleted())
+//        {
+//            $referentielObj = $this->addgrpeComptenceToRef($grpeCompetences,$this->serializer,$validator,$referentielObj,$manager,$groupeCompetenceRepository);
+//            if($referentiel != $referentielObj){
+//                $grpeCompetences = $referentiel->getGroupeCompetence();
+//                $referentiel = $this->removeGroupeCompetence($referentiel,$grpeCompetences);
+//                $groupeComptencesObj = $referentielObj->getGroupeCompetence();
+//                $referentiel = $this->addGroupeCompetence($referentiel,$groupeComptencesObj);
+//                $referentiel->setLibelle($referentielObj->getLibelle())
+//                    ->setPresentation($referentielObj->getPresentation());
+//                $manager->flush();
+//            }
+//            $referentiel = $this->serializer->normalize($referentiel,null,["groups" => [self::REFERENTIEL_READ]]);
+//            return $this->json($referentiel,Response::HTTP_OK);
+//        }
+//        return $this->json(["message" => self::RESOURCE_NOT_FOUND],Response::HTTP_NOT_FOUND);
+//    }
+//    private function removeGroupeCompetence(Referentiel $referentiel,$grpeCompetences)
+//    {
+//        foreach ($grpeCompetences as $grpeCompetence){
+//            $referentiel->removeGroupeCompetence($grpeCompetence);
+//        }
+//        return $referentiel;
+//    }
 
         /**
      * @Route(

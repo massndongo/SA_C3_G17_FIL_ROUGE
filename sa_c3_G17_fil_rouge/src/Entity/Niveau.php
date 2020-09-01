@@ -70,12 +70,12 @@ class Niveau
     private $isDeleted;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="niveaux")
+     * @ORM\ManyToOne(targetEntity=Brief::class, inversedBy="niveaux",cascade={"persist"})
      */
     private $brief;
 
     /**
-     * @ORM\ManyToMany(targetEntity=LivrablePartiels::class, mappedBy="niveaux")
+     * @ORM\ManyToMany(targetEntity=LivrablePartiels::class, mappedBy="niveaux",cascade={"persist"})
      */
     private $livrablePartiels;
 
