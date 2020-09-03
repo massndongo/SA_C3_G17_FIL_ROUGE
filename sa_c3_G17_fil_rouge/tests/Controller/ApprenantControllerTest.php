@@ -13,17 +13,15 @@ class ApprenantControllerTest extends WebTestCase
     */
     public function testGetRequests($url)
     {
-        $client = static::createClient();
-        $client->request("GET",$url,[],[],[
-            "AUTHORIZATION" => "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1OTg4OTYyNDksImV4cCI6MTU5ODkzMjI0OSwicm9sZXMiOlsiUk9MRV9BRE1JTiJdLCJ1c2VybmFtZSI6IlZpbmNlbnQifQ.zcoki16R8O4lvy4mAcDg9cOzik1ITwpxFdOjbHsTLgLt1G16wEEa0oqps5uqyWUHWN7iB1mpD8foPaI58-oDU9U25-SR-AKbk9l3X42dSr0zZifnHZgvbalsxXrtnMJggRUpF1V8IsSi0kmA7Nh4Pn_VlDgTLcYfhvzt5gXA7lJ-LazAtpgQI11B8Xw5okVB-vBYi5-n6vNKS5ZLNBT5HnOSWakW__gZ7k_j63JpkOpRH8RsRBHG6CUCsJd5FHjmG5u1fy95P4_JwuiZ6_d_5MfepbTLfR-_z9qEFZzf87ueaLvQBlmV84BdbacUs9aHER7jWL3c16L_hNc1rnLQCJkK1Q-7q6umaah1oV2IUORl3NANcq_4WxeMiSuggd3VL-nVuvngEG71R3uan8aywdlb5G-5p78OFkx5mAeatK95YnNQEnge7JpHkP-wn5qcgvyghkwXVnvgZBealshCC433KYhnYsijr1gXSRGfcFs6WbWbd1gXPqnB23Ex-Ar9e-zgetO3Y-zt9rYeghDXerIquJtWBBmvhePsucyauN_Hm8C8cDPRPu92n_Vtw2_G9w28QWo7By9wYqDk03IsulI3LfB-vK5BSwQa2VkOhMOxFmTYnUr3i5EGgvuXfiudzhyIv67fv3Qd3SuMRXDJD3ZyPb0Zgmi-tevX8s8MSwQ"
-        ]);
+        $client = $this->createAuthenticatedClient("Vincent","admin");
+        $client->request("GET",$url);
         $this->assertEquals(Response::HTTP_OK,$client->getResponse()->getStatusCode());
     }
 
     public function provideUrls()
     {
         return [
-            ["/api/admin/profils"],
+            ["/api/admins/profils"],
             ["/api/admins/promos"],
             ["/api/formateurs"],
             ["/api/formateurs/briefs"],
@@ -31,5 +29,25 @@ class ApprenantControllerTest extends WebTestCase
             ["/api/admins/grpecompetences/competences"],
             ["/api/admins/grpecompetences"]
         ];
+    }
+
+    private function createAuthenticatedClient($username,$password)
+    {
+        $client = static::createClient();
+        $client->request(
+            "POST",
+            "/api/login_check",
+            [],
+            [],
+            ["CONTENT_TYPE" => "application/json"],
+            "{
+                'username':$username,
+                'password':$password
+            }"
+        );
+        $data = json_decode($client->getResponse()->getContent(),true);
+        $client->setServerParameter("HTTP_Authorization",sprintf("Bearer %s","eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1OTkxNTAzNDMsImV4cCI6MTU5OTE4NjM0Mywicm9sZXMiOlsiUk9MRV9BRE1JTiJdLCJ1c2VybmFtZSI6IlZpbmNlbnQifQ.CkF2Js3Nj7dcY0rYmXtML0hDYiBIkdnod4S8iPDRQW4vnIczdFw8QIPPU5NXqo0KaxgqVJSmFkRCHEAAreLuHJil55Tsk0i-blPB2IFrmUWxFPxVGjMH4Ky5ermkbhl-6g0zExDJsoRsqUZROxZntMgRAomWEnMVrPdEUD47pRtyhqqb_zf9AANhwnPcpHMYr1icZHYiwCD26hsdU5xNOrgpTeTy3GyXclZiGgSUYTdCHlOPUHSr6eknihj6OdBreblFGDeEwHCGESr54Cn0ybFZjzyxCJQ4GICHvBFjogiEQIw5kjCqiSfN8IG7v2jlt75c6Yp-nCUHTuPa3V7y-Jy2iRSBWVDCDcQfkQdW3qM3KkaKoL8lqE2EnNuLrrx07o426tpFjYpwgS-0Cbt8eFF-2ClV7-aGvlZRTB8d6NbEaz8iJKaiPZToLyFXk0-oqlUvZhncg7kwZM6z6vUfCqVUt7hdkfgRfmoaTZKgFEVrVyTmWDcZyXXhKXgNaHrXdiY2VioGMLD2pSvbDSeuARURywJH4QxSXLgDOk_49WBT0uIuy5KZLUy5xE_UxXoU7dVjgo0Xvdvay5sXEwci--DT-KjczAQ4wACsfoHocEpMkOGuaQteCWZLQc2G0x6HcCJ2frhTSS602Y-9qy-h8SIzkp_FZEHPgLytgIxFL7E"));
+        $client->setServerParameter('CONTENT_TYPE', 'application/json');
+        return $client;
     }
 }
